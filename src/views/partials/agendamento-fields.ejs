@@ -1,0 +1,74 @@
+<div class="agendamento-group border border-base-300 rounded-lg p-4 space-y-4" data-index="<%= index %>">
+  <div class="flex items-center justify-between">
+    <span class="font-semibold text-base-content/70 text-sm">Agendamento #<%= index + 1 %></span>
+    <% if (index > 0) { %>
+      <button type="button" class="btn btn-xs btn-square btn-error btn-outline remove-agendamento" onclick="this.closest('.agendamento-group').remove()" title="Remover agendamento">
+        <i data-lucide="x" class="w-3 h-3"></i>
+      </button>
+    <% } %>
+  </div>
+
+  <div class="form-control">
+    <label class="label"><span class="label-text">Dias da semana</span></label>
+    <div class="dias-grid flex flex-wrap gap-2">
+      <% const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; %>
+      <% dias.forEach(function(dia, i) { %>
+        <label class="dia-check flex items-center gap-1 border border-base-300 rounded px-2 py-1 text-sm<%= agendamento && agendamento.diasSemana && JSON.parse(agendamento.diasSemana).includes(i) ? ' selected' : '' %>">
+          <input
+            type="checkbox"
+            class="hidden"
+            name="agendamentos[<%= index %>][diasSemana]"
+            value="<%= i %>"
+            <%= agendamento && agendamento.diasSemana ? (JSON.parse(agendamento.diasSemana).includes(i) ? 'checked' : '') : '' %>
+          >
+          <%= dia %>
+        </label>
+      <% }); %>
+    </div>
+  </div>
+
+  <div class="form-control">
+    <label class="label"><span class="label-text">Horários</span></label>
+    <div class="space-y-2" id="horarios-<%= index %>">
+      <%
+        const horarios = agendamento && agendamento.horarios
+          ? JSON.parse(agendamento.horarios)
+          : [''];
+      %>
+      <% horarios.forEach(function(h, hi) { %>
+        <div class="flex items-center gap-2 horario-input-group">
+          <input
+            type="time"
+            name="agendamentos[<%= index %>][horarios]"
+            value="<%= h %>"
+            class="input input-bordered input-sm w-36"
+            required
+          >
+          <% if (hi > 0) { %>
+            <button type="button" class="btn btn-xs btn-square btn-error btn-outline" onclick="this.parentElement.remove()"><i data-lucide="x" class="w-3 h-3"></i></button>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline btn-xs mt-2 w-fit"
+      onclick="addHorario(<%= index %>)"
+    >
+      <i data-lucide="plus" class="w-3 h-3"></i> Horário
+    </button>
+  </div>
+
+  <div class="form-control">
+    <label class="label cursor-pointer justify-start gap-3">
+      <input
+        type="checkbox"
+        class="toggle toggle-primary toggle-sm"
+        name="agendamentos[<%= index %>][ativo]"
+        value="on"
+        <%= !agendamento || agendamento.ativo !== false ? 'checked' : '' %>
+      >
+      <span class="label-text">Ativo</span>
+    </label>
+  </div>
+</div>

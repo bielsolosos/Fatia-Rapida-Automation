@@ -1,0 +1,74 @@
+<%- include('../layouts/header', { title: 'Execuções', isAuthenticated: true, currentPage: 'execucoes' }) %>
+
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="scroll-text" class="w-6 h-6"></i> Execuções</h2>
+
+  <!-- Filtros -->
+  <div class="flex items-center gap-3">
+    <select
+      name="status"
+      class="select select-bordered select-sm"
+      hx-get="/execucoes"
+      hx-target="#execucoes-table-body"
+      hx-swap="innerHTML"
+      hx-include="[name='limit']"
+      hx-vals='{"partial": "true"}'
+    >
+      <option value="" <%= typeof currentStatus === 'undefined' || !currentStatus ? 'selected' : '' %>>Todos os status</option>
+      <option value="SUCESSO" <%= typeof currentStatus !== 'undefined' && currentStatus === 'SUCESSO' ? 'selected' : '' %>>Sucesso</option>
+      <option value="FALHA" <%= typeof currentStatus !== 'undefined' && currentStatus === 'FALHA' ? 'selected' : '' %>>Falha</option>
+      <option value="EM_ANDAMENTO" <%= typeof currentStatus !== 'undefined' && currentStatus === 'EM_ANDAMENTO' ? 'selected' : '' %>>Em andamento</option>
+    </select>
+    <input type="hidden" name="limit" value="<%= typeof limit !== 'undefined' ? limit : 20 %>">
+  </div>
+
+  <% if (typeof execucoes !== 'undefined' && execucoes.length > 0) { %>
+    <div class="card bg-base-200 shadow">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Data/Hora</th>
+                <th>Status</th>
+                <th>Tarefa</th>
+                <th>Duração</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="execucoes-table-body">
+              <% execucoes.forEach(function(exec) { %>
+                <%- include('../partials/execution-row', { exec }) %>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginação -->
+    <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+      <div class="flex justify-center">
+        <div class="join">
+          <% for (var p = 1; p <= totalPages; p++) { %>
+            <a
+              href="/execucoes?page=<%= p %>&limit=<%= limit %><%= typeof currentStatus !== 'undefined' && currentStatus ? '&status=' + currentStatus : '' %>"
+              class="join-item btn btn-sm <%= p === currentPage ? 'btn-active' : '' %>"
+            ><%= p %></a>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  <% } else { %>
+    <div class="card bg-base-200 shadow">
+      <div class="card-body items-center text-center">
+        <p class="text-base-content/60">Nenhuma execução registrada ainda.</p>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Modal for execution details -->
+  <dialog id="exec-detail-modal" class="modal"></dialog>
+</div>
+
+<%- include('../layouts/footer') %>

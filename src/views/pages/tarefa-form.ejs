@@ -1,0 +1,116 @@
+<%- include('../layouts/header', {
+  title: typeof tarefa !== 'undefined' ? 'Editar Tarefa' : 'Nova Tarefa',
+  isAuthenticated: true,
+  currentPage: 'tarefas'
+}) %>
+
+<div class="max-w-2xl mx-auto space-y-6">
+  <h2 class="text-2xl font-bold flex items-center gap-2">
+    <% if (typeof tarefa !== 'undefined') { %><i data-lucide="pencil" class="w-6 h-6"></i> Editar Tarefa<% } else { %><i data-lucide="plus" class="w-6 h-6"></i> Nova Tarefa<% } %>
+  </h2>
+
+  <% if (typeof errors !== 'undefined' && errors) { %>
+    <div role="alert" class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <% if (Array.isArray(errors)) { %>
+          <ul class="list-disc list-inside">
+            <% errors.forEach(function(e) { %><li><%= e.message %></li><% }); %>
+          </ul>
+        <% } else { %>
+          <%= errors %>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <form
+    method="POST"
+    action="<%= typeof tarefa !== 'undefined' ? '/tarefas/' + tarefa.id : '/tarefas' %>"
+    class="card bg-base-200 shadow"
+  >
+    <div class="card-body space-y-4">
+      <% if (typeof tarefa !== 'undefined') { %>
+        <input type="hidden" name="_method" value="PUT">
+      <% } %>
+
+      <div class="form-control">
+        <label class="label" for="nome"><span class="label-text">Nome *</span></label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          class="input input-bordered w-full"
+          value="<%= typeof tarefa !== 'undefined' ? tarefa.nome : (typeof values !== 'undefined' && values.nome ? values.nome : '') %>"
+          placeholder="Ex: Ponto matutino"
+          required
+          maxlength="100"
+        >
+      </div>
+
+      <div class="form-control">
+        <label class="label" for="descricao"><span class="label-text">Descrição</span></label>
+        <textarea
+          id="descricao"
+          name="descricao"
+          class="textarea textarea-bordered w-full"
+          placeholder="Descrição opcional..."
+          maxlength="500"
+        ><%= typeof tarefa !== 'undefined' && tarefa.descricao ? tarefa.descricao : (typeof values !== 'undefined' && values.descricao ? values.descricao : '') %></textarea>
+      </div>
+
+      <div class="form-control">
+        <label class="label" for="webhookUrl"><span class="label-text">Webhook URL (Discord)</span></label>
+        <input
+          type="url"
+          id="webhookUrl"
+          name="webhookUrl"
+          class="input input-bordered w-full"
+          value="<%= typeof tarefa !== 'undefined' && tarefa.webhookUrl ? tarefa.webhookUrl : (typeof values !== 'undefined' && values.webhookUrl ? values.webhookUrl : '') %>"
+          placeholder="https://discord.com/api/webhooks/..."
+        >
+      </div>
+
+      <div class="form-control">
+        <label class="label" for="comandoOuPayload"><span class="label-text">Comando / Payload</span></label>
+        <textarea
+          id="comandoOuPayload"
+          name="comandoOuPayload"
+          class="textarea textarea-bordered w-full font-mono text-sm"
+          placeholder="Payload JSON ou comando..."
+          maxlength="2000"
+        ><%= typeof tarefa !== 'undefined' && tarefa.comandoOuPayload ? tarefa.comandoOuPayload : (typeof values !== 'undefined' && values.comandoOuPayload ? values.comandoOuPayload : '') %></textarea>
+      </div>
+
+      <div class="divider"><i data-lucide="calendar" class="w-4 h-4"></i> Agendamentos</div>
+
+      <div id="agendamentos-container" class="space-y-4">
+        <%
+          const agendamentos = typeof tarefa !== 'undefined' && tarefa.agendamentos
+            ? tarefa.agendamentos
+            : [null];
+        %>
+        <% agendamentos.forEach(function(ag, i) { %>
+          <%- include('../partials/agendamento-fields', { index: i, agendamento: ag }) %>
+        <% }); %>
+      </div>
+
+      <button type="button" class="btn btn-outline btn-sm" onclick="addAgendamento()">
+        <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Agendamento
+      </button>
+
+      <div class="divider"></div>
+
+      <div class="flex gap-3 justify-end">
+        <a href="/tarefas" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary">
+          <% if (typeof tarefa !== 'undefined') { %><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações<% } else { %><i data-lucide="plus" class="w-4 h-4"></i> Criar Tarefa<% } %>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<%- include('../layouts/footer') %>

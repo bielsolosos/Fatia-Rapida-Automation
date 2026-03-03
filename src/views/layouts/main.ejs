@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' — Fatia Rápida' : 'Fatia Rápida' %></title>
+
+  <!-- Pico CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="/public/css/style.css">
+
+  <!-- HTMX -->
+  <script src="/public/js/htmx.min.js"></script>
+</head>
+<body>
+  <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+    <%- include('../partials/navbar') %>
+  <% } %>
+
+  <main class="container">
+    <!-- Toast container for HTMX responses -->
+    <div id="toast-container"></div>
+
+    <%- body %>
+  </main>
+
+  <footer class="container">
+    <small>🍕 Fatia Rápida v2 — Raspberry Pi Edition</small>
+  </footer>
+
+  <script>
+    // Auto-dismiss toasts
+    document.body.addEventListener('htmx:afterSwap', function(evt) {
+      const toasts = document.querySelectorAll('.toast');
+      toasts.forEach(t => {
+        setTimeout(() => t.classList.add('fade-out'), 3000);
+        setTimeout(() => t.remove(), 3500);
+      });
+    });
+  </script>
+</body>
+</html>

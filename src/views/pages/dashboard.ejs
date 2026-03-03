@@ -1,0 +1,87 @@
+<%- include('../layouts/header', { title: 'Dashboard', isAuthenticated: true, currentPage: 'dashboard' }) %>
+
+<div class="space-y-6">
+  <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="layout-dashboard" class="w-6 h-6"></i> Dashboard</h2>
+
+  <!-- Stats -->
+  <div class="stats stats-vertical lg:stats-horizontal shadow w-full bg-base-200">
+    <div class="stat">
+      <div class="stat-title">Total de Tarefas</div>
+      <div class="stat-value"><%= stats.totalTarefas %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Tarefas Ativas</div>
+      <div class="stat-value text-success"><%= stats.tarefasAtivas %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Execuções (24h)</div>
+      <div class="stat-value"><%= stats.execucoes24h %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Taxa de Sucesso</div>
+      <div class="stat-value text-success"><%= stats.taxaSucesso %>%</div>
+    </div>
+  </div>
+
+  <!-- Resumo de Execuções -->
+  <div class="card bg-base-200 shadow">
+    <div class="card-body">
+      <h3 class="card-title"><i data-lucide="bar-chart-2" class="w-5 h-5"></i> Resumo de Execuções</h3>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <span class="badge badge-success w-20 shrink-0">Sucesso</span>
+          <progress class="progress progress-success flex-1" value="<%= stats.execucoesSucesso %>" max="<%= stats.totalExecucoes || 1 %>"></progress>
+          <span class="text-sm w-8 text-right"><%= stats.execucoesSucesso %></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="badge badge-error w-20 shrink-0">Falha</span>
+          <progress class="progress progress-error flex-1" value="<%= stats.execucoesFalha %>" max="<%= stats.totalExecucoes || 1 %>"></progress>
+          <span class="text-sm w-8 text-right"><%= stats.execucoesFalha %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Últimas Execuções -->
+  <div class="card bg-base-200 shadow">
+    <div class="card-body">
+      <h3 class="card-title"><i data-lucide="clock" class="w-5 h-5"></i> Últimas Execuções</h3>
+      <% if (stats.ultimasExecucoes.length === 0) { %>
+        <p class="text-base-content/60">Nenhuma execução registrada ainda.</p>
+      <% } else { %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Data/Hora</th>
+                <th>Status</th>
+                <th>Tarefa</th>
+                <th>Duração</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% stats.ultimasExecucoes.forEach(function(exec) { %>
+                <tr>
+                  <td class="text-sm"><%= new Date(exec.executadoEm).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) %></td>
+                  <td>
+                    <span class="badge badge-sm <%= exec.status === 'SUCESSO' ? 'badge-success' : exec.status === 'FALHA' ? 'badge-error' : 'badge-warning' %>">
+                      <%= exec.status %>
+                    </span>
+                  </td>
+                  <td><%= exec.tarefa ? exec.tarefa.nome : '—' %></td>
+                  <td class="text-sm"><%= exec.duracao ? exec.duracao + 'ms' : '—' %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (typeof jobCount !== 'undefined') { %>
+    <p class="text-sm text-base-content/50 flex items-center gap-1"><i data-lucide="settings" class="w-4 h-4"></i> <%= jobCount %> cron jobs ativos</p>
+  <% } %>
+</div>
+
+<%- include('../layouts/footer') %>

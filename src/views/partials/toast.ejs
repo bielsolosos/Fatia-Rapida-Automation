@@ -1,0 +1,6 @@
+<div
+  role="alert"
+  class="alert <%= typeof type !== 'undefined' && type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info' %> shadow-lg pointer-events-auto"
+>
+  <span><%= typeof message !== 'undefined' ? message : '' %></span>
+</div>

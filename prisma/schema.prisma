@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Sessions (auth via cookie) ──
+model Session {
+  sid       String   @id
+  data      String // JSON serializado
+  expiresAt DateTime
+
+  @@map("sessions")
+}
+
+// ── Tarefas agendadas ──
+model Tarefa {
+  id               String   @id @default(uuid())
+  nome             String
+  descricao        String?
+  comandoOuPayload String?  @map("comando_ou_payload")
+  webhookUrl       String?  @map("webhook_url")
+  ativo            Boolean  @default(true)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  agendamentos Agendamento[]
+  execucoes    Execucao[]
+
+  @@map("tarefas")
+}
+
+// ── Agendamentos (dias + horários) ──
+model Agendamento {
+  id         String  @id @default(uuid())
+  diasSemana String  @map("dias_semana") // JSON: number[] (0=dom, 6=sab)
+  horarios   String // JSON: string[] ("HH:MM")
+  ativo      Boolean @default(true)
+
+  tarefaId String @map("tarefa_id")
+  tarefa   Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  @@map("agendamentos")
+}
+
+// ── Log de execuções ──
+model Execucao {
+  id          String   @id @default(uuid())
+  status      String // SUCESSO | FALHA | EM_ANDAMENTO
+  saida       String? // JSON output
+  duracao     Int? // ms
+  executadoEm DateTime @default(now()) @map("executado_em")
+
+  tarefaId String @map("tarefa_id")
+  tarefa   Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  @@map("execucoes")
+}

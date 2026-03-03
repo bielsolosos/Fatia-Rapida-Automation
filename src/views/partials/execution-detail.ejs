@@ -1,0 +1,73 @@
+<div class="modal-box max-w-lg">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-bold text-lg">Detalhes da Execução</h3>
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </form>
+  </div>
+
+  <dl class="grid grid-cols-[auto,1fr] gap-x-4 gap-y-2 text-sm">
+    <dt class="font-semibold text-base-content/60">ID</dt>
+    <dd><code class="text-xs bg-base-300 px-1 rounded"><%= exec.id %></code></dd>
+
+    <dt class="font-semibold text-base-content/60">Status</dt>
+    <dd>
+      <span class="badge badge-sm <%= exec.status === 'SUCESSO' ? 'badge-success' : exec.status === 'FALHA' ? 'badge-error' : 'badge-warning' %>">
+        <%= exec.status %>
+      </span>
+    </dd>
+
+    <dt class="font-semibold text-base-content/60">Data/Hora</dt>
+    <dd><%= new Date(exec.executadoEm).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) %></dd>
+
+    <dt class="font-semibold text-base-content/60">Duração</dt>
+    <dd><%= exec.duracao ? exec.duracao + 'ms' : '—' %></dd>
+
+    <% if (exec.tarefa) { %>
+      <dt class="font-semibold text-base-content/60">Tarefa</dt>
+      <dd><%= exec.tarefa.nome %></dd>
+    <% } %>
+  </dl>
+
+  <% if (exec.saida) { %>
+    <% const parsed = JSON.parse(exec.saida); %>
+    <div class="mt-4 space-y-3">
+      <% if (parsed.stdout) { %>
+        <div>
+          <h4 class="font-semibold text-sm mb-1">stdout</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 whitespace-pre-wrap"><%= parsed.stdout %></pre>
+        </div>
+      <% } %>
+      <% if (parsed.stderr) { %>
+        <div>
+          <h4 class="font-semibold text-sm mb-1 text-error">stderr</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-32 whitespace-pre-wrap text-error"><%= parsed.stderr %></pre>
+        </div>
+      <% } %>
+      <% if (!parsed.stdout && !parsed.stderr) { %>
+        <div>
+          <h4 class="font-semibold text-sm mb-1">Saída</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48"><%= JSON.stringify(parsed, null, 2) %></pre>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <div class="modal-action mt-4">
+    <form method="dialog">
+      <button class="btn btn-sm">Fechar</button>
+    </form>
+  </div>
+</div>
+
+<!-- Clique no fundo fecha o modal -->
+<form method="dialog" class="modal-backdrop">
+  <button>fechar</button>
+</form>
+
+<script>
+  (function() {
+    var d = document.getElementById('exec-detail-modal');
+    if (d && !d.open) d.showModal();
+  })();
+</script>

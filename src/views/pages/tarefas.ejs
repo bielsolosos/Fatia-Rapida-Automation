@@ -1,0 +1,25 @@
+<%- include('../layouts/header', { title: 'Tarefas', isAuthenticated: true, currentPage: 'tarefas' }) %>
+
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="clipboard-list" class="w-6 h-6"></i> Tarefas</h2>
+    <a href="/tarefas/nova" class="btn btn-primary btn-sm"><i data-lucide="plus" class="w-4 h-4"></i> Nova Tarefa</a>
+  </div>
+
+  <% if (tarefas.length === 0) { %>
+    <div class="card bg-base-200 shadow">
+      <div class="card-body items-center text-center">
+        <p class="text-base-content/60 mb-4">Nenhuma tarefa cadastrada ainda.</p>
+        <a href="/tarefas/nova" class="btn btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Criar primeira tarefa</a>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="task-list">
+      <% tarefas.forEach(function(tarefa) { %>
+        <%- include('../partials/task-card', { tarefa }) %>
+      <% }); %>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../layouts/footer') %>
