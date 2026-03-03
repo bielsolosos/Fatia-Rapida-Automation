@@ -4,7 +4,7 @@ import fastifyHelmet from "@fastify/helmet";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import ejs from "ejs";
-import Fastify from "fastify";
+import Fastify, { type FastifyError } from "fastify";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.js";
@@ -89,7 +89,7 @@ export async function buildApp() {
   }
 
   // ── Error handler ──
-  app.setErrorHandler((error, request, reply) => {
+  app.setErrorHandler((error: FastifyError, request, reply) => {
     request.log.error(error);
 
     const statusCode = error.statusCode || 500;

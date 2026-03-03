@@ -1,0 +1,23 @@
+/* ── Fatia Rápida v2 — Custom Styles ── */
+/* DaisyUI + Tailwind CSS handles most styling. Only app-specific overrides here. */
+
+/* ── HTMX swap transitions ── */
+.htmx-swapping {
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+/* ── Day-of-week chip buttons ── */
+.dia-check {
+  user-select: none;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    color 150ms,
+    border-color 150ms;
+}
+.dia-check.selected {
+  background-color: oklch(var(--p));
+  color: oklch(var(--pc));
+  border-color: oklch(var(--p));
+}

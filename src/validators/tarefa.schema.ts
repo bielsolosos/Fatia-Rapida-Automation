@@ -126,8 +126,8 @@ export function parseFormTarefa(
 
   return {
     nome,
-    descricao: descricao || undefined,
-    comandoOuPayload: comandoOuPayload || undefined,
+    descricao: descricao || "",
+    comandoOuPayload: comandoOuPayload || "",
     webhookUrl: webhookUrl || undefined,
     agendamentos,
   };
