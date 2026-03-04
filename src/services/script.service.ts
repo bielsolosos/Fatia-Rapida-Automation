@@ -14,16 +14,21 @@ function extensaoPorTipo(tipo: string): string {
   return "sh";
 }
 
-function executorPorTipo(tipo: string): { cmd: string; args: string[] } {
+function executorPorTipo(
+  tipo: string,
+  filePath: string,
+): { cmd: string; args: string[] } {
   if (process.platform === "win32") {
-    if (tipo === "NODEJS") return { cmd: "node", args: [] };
-    if (tipo === "PYTHON") return { cmd: "python", args: [] };
-    return { cmd: "cmd.exe", args: ["/c"] };
+    if (tipo === "NODEJS") return { cmd: "node", args: [filePath] };
+    if (tipo === "PYTHON") return { cmd: "python", args: [filePath] };
+    // Windows: usa bash (Git Bash) para scripts .sh — cmd.exe abriria janela externa
+    // sem capturar output. bash -c merges stderr+stdout via 2>&1.
+    return { cmd: "bash", args: ["-c", `"${filePath}" 2>&1`] };
   }
-  if (tipo === "NODEJS") return { cmd: "node", args: [] };
-  if (tipo === "PYTHON") return { cmd: "python3", args: [] };
-  // Usa bash explicitamente (Raspberry Pi OS: /bin/sh = dash, sem suporte a arrays, etc.)
-  return { cmd: "bash", args: [] };
+  if (tipo === "NODEJS") return { cmd: "node", args: [filePath] };
+  if (tipo === "PYTHON") return { cmd: "python3", args: [filePath] };
+  // Linux: bash -c com 2>&1 — merge stderr+stdout na ordem real do terminal
+  return { cmd: "bash", args: ["-c", `"${filePath}" 2>&1`] };
 }
 
 async function garantirDiretorio(): Promise<void> {
@@ -155,20 +160,13 @@ export async function executeScriptManually(
   });
 
   const filePath = path.join(config.scriptsDir, script.arquivo);
-  const { cmd, args } = executorPorTipo(script.tipo);
-
-  // Para SHELL: usa bash -c "arquivo 2>&1" para capturar tudo num stream único
-  // na ordem exata em que foi impresso no terminal
-  const spawnArgs =
-    script.tipo === "SHELL"
-      ? ["-c", `"${filePath}" 2>&1`]
-      : [...args, filePath];
+  const { cmd, args } = executorPorTipo(script.tipo, filePath);
 
   const result = await new Promise<ExecucaoResult>((resolve) => {
     let stdout = "";
     let stderr = "";
 
-    const proc = spawn(cmd, spawnArgs, {
+    const proc = spawn(cmd, args, {
       timeout: 60_000,
       // cwd = diretório dos scripts: permite que um bash chame outro script pelo nome relativo
       // ex: python3 ./uuid.py  ou  source ./uuid.sh

@@ -47,10 +47,9 @@ export async function executeTask(
             cmd = "python";
             args = [filePath];
           } else {
-            // SHELL: roda como bash -c "arquivo 2>&1" para capturar stdout+stderr
-            // em ordem real, exatamente como seria visto no terminal
-            cmd = "cmd.exe";
-            args = ["/c", filePath];
+            // Windows: usa bash (Git Bash) para scripts shell
+            cmd = "bash";
+            args = ["-c", `"${filePath}" 2>&1`];
           }
         } else {
           if (script.tipo === "NODEJS") {
@@ -60,7 +59,7 @@ export async function executeTask(
             cmd = "python3";
             args = [filePath];
           } else {
-            // SHELL: bash -c merges stderr into stdout na ordem correta (2>&1)
+            // Linux/Raspberry Pi: bash com merge de stderr+stdout
             cmd = "bash";
             args = ["-c", `"${filePath}" 2>&1`];
           }
