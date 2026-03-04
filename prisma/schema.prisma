@@ -16,6 +16,24 @@ model Session {
   @@map("sessions")
 }
 
+// ── Scripts (arquivos executáveis gerenciados pela UI) ──
+model Script {
+  id        String   @id @default(uuid())
+  nome      String
+  descricao String?
+  tipo      String // SHELL | NODEJS | PYTHON
+  arquivo   String   @unique @map("arquivo") // nome do arquivo em scripts/user/
+  conteudo  String   @default("") // conteúdo salvo no banco (espelho do arquivo)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tarefas   Tarefa[]
+  execucoes Execucao[]
+
+  @@map("scripts")
+}
+
 // ── Tarefas agendadas ──
 model Tarefa {
   id               String   @id @default(uuid())
@@ -28,6 +46,9 @@ model Tarefa {
   horarios         String   @default("[]") // JSON: string[] ("HH:MM")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
+
+  scriptId String? @map("script_id")
+  script   Script? @relation(fields: [scriptId], references: [id], onDelete: SetNull)
 
   execucoes Execucao[]
 
@@ -42,8 +63,11 @@ model Execucao {
   duracao     Int? // ms
   executadoEm DateTime @default(now()) @map("executado_em")
 
-  tarefaId String @map("tarefa_id")
-  tarefa   Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+  tarefaId String? @map("tarefa_id")
+  tarefa   Tarefa? @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  scriptId String? @map("script_id")
+  script   Script? @relation(fields: [scriptId], references: [id], onDelete: SetNull)
 
   @@map("execucoes")
 }

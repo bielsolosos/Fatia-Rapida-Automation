@@ -81,7 +81,24 @@
         >
       </div>
 
+      <% if (typeof scripts !== 'undefined' && scripts && scripts.length > 0) { %>
       <div class="form-control">
+        <label class="label" for="scriptId">
+          <span class="label-text">Script vinculado</span>
+          <span class="label-text-alt text-base-content/50">Substitui o campo Comando quando selecionado</span>
+        </label>
+        <select id="scriptId" name="scriptId" class="select select-bordered w-full">
+          <option value="">Nenhum (usar comando abaixo)</option>
+          <% scripts.forEach(function(s) {
+            const selected = (src && src.scriptId === s.id) || (typeof values !== 'undefined' && values.scriptId === s.id);
+          %>
+          <option value="<%= s.id %>" <%= selected ? 'selected' : '' %>><%= s.nome %> (<%= s.tipo %>)</option>
+          <% }); %>
+        </select>
+      </div>
+      <% } %>
+
+      <div id="comando-section" class="form-control">
         <label class="label" for="comandoOuPayload"><span class="label-text">Comando / Payload</span></label>
         <textarea
           id="comandoOuPayload"

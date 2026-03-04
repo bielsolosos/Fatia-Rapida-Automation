@@ -1,6 +1,8 @@
 import type { PrismaClient, Tarefa } from "@prisma/client";
-import { exec } from "child_process";
+import { exec, spawn } from "child_process";
+import path from "node:path";
 import { promisify } from "util";
+import { config } from "../config.js";
 import { sendDiscordWebhook } from "./webhook.service.js";
 
 const execAsync = promisify(exec);
@@ -21,10 +23,86 @@ export async function executeTask(
   try {
     let stdout = "";
     let stderr = "";
-    let saidaTipo: "shell" | "noop" = "noop";
+    let saidaTipo: "shell" | "script" | "noop" = "noop";
 
-    // ── Executa o comando/payload no shell ──
-    if (tarefa.comandoOuPayload) {
+    // ── Se a tarefa tem script vinculado, executa o arquivo ──
+    if (tarefa.scriptId) {
+      const script = await prisma.script.findUnique({
+        where: { id: tarefa.scriptId },
+      });
+
+      if (script) {
+        console.log(
+          `\n[Scheduler] ▶ Tarefa "${tarefa.nome}" via script "${script.nome}"`,
+        );
+        const filePath = path.join(config.scriptsDir, script.arquivo);
+
+        let cmd: string;
+        let args: string[];
+        if (process.platform === "win32") {
+          if (script.tipo === "NODEJS") {
+            cmd = "node";
+            args = [filePath];
+          } else if (script.tipo === "PYTHON") {
+            cmd = "python";
+            args = [filePath];
+          } else {
+            // Windows: usa bash (Git Bash) para scripts shell
+            cmd = "bash";
+            args = ["-c", `"${filePath}" 2>&1`];
+          }
+        } else {
+          if (script.tipo === "NODEJS") {
+            cmd = "node";
+            args = [filePath];
+          } else if (script.tipo === "PYTHON") {
+            cmd = "python3";
+            args = [filePath];
+          } else {
+            // Linux/Raspberry Pi: bash com merge de stderr+stdout
+            cmd = "bash";
+            args = ["-c", `"${filePath}" 2>&1`];
+          }
+        }
+
+        const result = await new Promise<{
+          stdout: string;
+          stderr: string;
+          exitCode: number;
+        }>((resolve) => {
+          let out = "";
+          let err = "";
+          const proc = spawn(cmd, args, {
+            timeout: 60_000,
+            cwd: config.scriptsDir,
+            env: process.env,
+          });
+          proc.stdout.on("data", (d: Buffer) => (out += d.toString()));
+          proc.stderr.on("data", (d: Buffer) => (err += d.toString()));
+          proc.on("close", (code) =>
+            resolve({
+              stdout: out.trim(),
+              stderr: err.trim(),
+              exitCode: code ?? 1,
+            }),
+          );
+          proc.on("error", (e) =>
+            resolve({ stdout: "", stderr: e.message, exitCode: 1 }),
+          );
+        });
+        stdout = result.stdout;
+        stderr = result.stderr;
+        saidaTipo = "script";
+
+        if (result.exitCode !== 0)
+          throw new Error(
+            `Script saiu com código ${result.exitCode}\n${stderr}`,
+          );
+      }
+    }
+
+    // ── Caso contrário, executa o comando/payload no shell ──
+    else if (tarefa.comandoOuPayload) {
       console.log(`\n[Scheduler] ▶ Tarefa "${tarefa.nome}"`);
       console.log(`[Scheduler] $ ${tarefa.comandoOuPayload}`);
 
@@ -48,7 +126,7 @@ export async function executeTask(
         nome: tarefa.nome,
         descricao: tarefa.descricao,
         payload:
-          saidaTipo === "shell"
+          saidaTipo === "shell" || saidaTipo === "script"
             ? `**stdout:**\n\`\`\`\n${stdout || "(sem saída)"}\n\`\`\`${stderr ? `\n**stderr:**\n\`\`\`\n${stderr}\n\`\`\`` : ""}`
             : tarefa.comandoOuPayload,
       });
@@ -58,7 +136,9 @@ export async function executeTask(
     const saida = JSON.stringify(
       saidaTipo === "shell"
         ? { type: "shell", comando: tarefa.comandoOuPayload, stdout, stderr }
-        : { type: "noop", message: "Tarefa sem ação configurada" },
+        : saidaTipo === "script"
+          ? { type: "script", stdout, stderr }
+          : { type: "noop", message: "Tarefa sem ação configurada" },
     );
 
     console.log(`[Scheduler] ✓ "${tarefa.nome}" concluída em ${duracao}ms`);

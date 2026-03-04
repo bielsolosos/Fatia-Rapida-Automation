@@ -1,0 +1,30 @@
+<%
+  const success = result.exitCode === 0;
+%>
+<div class="mt-2 rounded-lg overflow-hidden text-xs border <%= success ? 'border-success/30' : 'border-error/30' %>">
+  <div class="flex items-center justify-between px-3 py-1.5 <%= success ? 'bg-success/10' : 'bg-error/10' %>">
+    <span class="font-semibold flex items-center gap-1">
+      <% if (success) { %>
+        <i data-lucide="check-circle-2" class="w-3 h-3 text-success"></i>
+        <span class="text-success">Sucesso</span>
+      <% } else { %>
+        <i data-lucide="x-circle" class="w-3 h-3 text-error"></i>
+        <span class="text-error">Falha (exit <%= result.exitCode %>)</span>
+      <% } %>
+    </span>
+    <span class="opacity-50"><%= result.duracao %>ms</span>
+  </div>
+
+  <% if (result.stdout) { %>
+    <div class="p-3 bg-base-300 font-mono whitespace-pre-wrap text-xs leading-relaxed max-h-48 overflow-y-auto"><%= result.stdout %></div>
+  <% } %>
+
+  <% if (result.stderr) { %>
+    <div class="px-3 py-1 bg-error/5 text-xs font-semibold opacity-70">stderr</div>
+    <div class="p-3 bg-base-300 font-mono whitespace-pre-wrap text-xs leading-relaxed max-h-32 overflow-y-auto text-error/80"><%= result.stderr %></div>
+  <% } %>
+
+  <% if (!result.stdout && !result.stderr) { %>
+    <div class="p-3 text-base-content/50 italic">(sem saída)</div>
+  <% } %>
+</div>

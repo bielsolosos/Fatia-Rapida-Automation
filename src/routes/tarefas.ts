@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { listScripts } from "../services/script.service.js";
 import {
   createTarefa,
   deleteTarefa,
@@ -27,8 +28,10 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // GET /tarefas/nova — form to create
-  app.get("/nova", async (request, reply) => {
+  app.get("/nova", async (_request, reply) => {
+    const scripts = await listScripts(app.prisma);
     return reply.view("pages/tarefa-form.ejs", {
+      scripts,
       isAuthenticated: true,
       currentPage: "tarefas",
     });
@@ -36,16 +39,20 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
 
   // GET /tarefas/:id/clonar — form pre-filled to clone
   app.get<{ Params: { id: string } }>("/clonar/:id", async (request, reply) => {
-    const tarefa = await getTarefaById(app.prisma, request.params.id);
+    const [tarefa, scripts] = await Promise.all([
+      getTarefaById(app.prisma, request.params.id),
+      listScripts(app.prisma),
+    ]);
     if (!tarefa) {
       return reply.status(404).view("pages/error.ejs", {
         statusCode: 404,
-        message: "Tarefa não encontrada",
+        message: "Tarefa n\u00e3o encontrada",
         isAuthenticated: true,
       });
     }
     return reply.view("pages/tarefa-form.ejs", {
       prefill: tarefa,
+      scripts,
       isAuthenticated: true,
       currentPage: "tarefas",
     });
@@ -53,16 +60,20 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
 
   // GET /tarefas/:id/editar — form to edit
   app.get<{ Params: { id: string } }>("/:id/editar", async (request, reply) => {
-    const tarefa = await getTarefaById(app.prisma, request.params.id);
+    const [tarefa, scripts] = await Promise.all([
+      getTarefaById(app.prisma, request.params.id),
+      listScripts(app.prisma),
+    ]);
     if (!tarefa) {
       return reply.status(404).view("pages/error.ejs", {
         statusCode: 404,
-        message: "Tarefa não encontrada",
+        message: "Tarefa n\u00e3o encontrada",
         isAuthenticated: true,
       });
     }
     return reply.view("pages/tarefa-form.ejs", {
       tarefa,
+      scripts,
       isAuthenticated: true,
       currentPage: "tarefas",
     });

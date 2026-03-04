@@ -1,0 +1,185 @@
+<%
+  const isEdit = typeof script !== 'undefined' && script;
+  const pageTitle = isEdit ? 'Editar Script' : 'Novo Script';
+  const src = isEdit ? script : null;
+  const valNome = src ? src.nome : (typeof values !== 'undefined' && values.nome ? values.nome : '');
+  const valDesc = src ? (src.descricao || '') : (typeof values !== 'undefined' && values.descricao ? values.descricao : '');
+  const valTipo = src ? src.tipo : (typeof values !== 'undefined' && values.tipo ? values.tipo : 'SHELL');
+  const valConteudo = src ? (src.conteudo || '') : (typeof values !== 'undefined' && values.conteudo ? values.conteudo : '');
+  const valArquivo = src ? src.arquivo : null;
+%>
+<%- include('../layouts/header', {
+  title: pageTitle,
+  isAuthenticated: true,
+  currentPage: 'scripts'
+}) %>
+
+<div class="max-w-5xl mx-auto space-y-6">
+  <h2 class="text-2xl font-bold flex items-center gap-2">
+    <% if (isEdit) { %><i data-lucide="pencil" class="w-6 h-6"></i> Editar Script
+    <% } else { %><i data-lucide="plus" class="w-6 h-6"></i> Novo Script<% } %>
+  </h2>
+
+  <% if (typeof errors !== 'undefined' && errors) { %>
+    <div role="alert" class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <% if (Array.isArray(errors)) { %>
+          <ul class="list-disc list-inside">
+            <% errors.forEach(function(e) { %><li><%= e.message %></li><% }); %>
+          </ul>
+        <% } else { %>
+          <%= errors %>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <form
+    method="POST"
+    action="<%= isEdit ? '/scripts/' + script.id : '/scripts' %>"
+    class="card bg-base-200 shadow"
+    id="script-form"
+  >
+    <div class="card-body space-y-4">
+      <% if (isEdit) { %>
+        <input type="hidden" name="_method" value="PUT">
+      <% } %>
+      <!-- hidden conteudo filled by Monaco -->
+      <input type="hidden" name="conteudo" id="conteudo-hidden" value="">
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="form-control sm:col-span-2">
+          <label class="label" for="nome"><span class="label-text">Nome *</span></label>
+          <input
+            type="text"
+            id="nome"
+            name="nome"
+            class="input input-bordered w-full"
+            value="<%= valNome %>"
+            placeholder="Ex: Backup diário"
+            required
+            maxlength="100"
+          >
+        </div>
+
+        <div class="form-control sm:col-span-2">
+          <label class="label" for="descricao"><span class="label-text">Descrição</span></label>
+          <textarea
+            id="descricao"
+            name="descricao"
+            class="textarea textarea-bordered w-full"
+            placeholder="Descrição opcional..."
+            maxlength="500"
+          ><%= valDesc %></textarea>
+        </div>
+
+        <div class="form-control">
+          <label class="label" for="tipo"><span class="label-text">Tipo *</span></label>
+          <select id="tipo" name="tipo" class="select select-bordered w-full">
+            <option value="SHELL" <%= valTipo === 'SHELL' ? 'selected' : '' %>>Shell</option>
+            <option value="NODEJS" <%= valTipo === 'NODEJS' ? 'selected' : '' %>>Node.js</option>
+            <option value="PYTHON" <%= valTipo === 'PYTHON' ? 'selected' : '' %>>Python</option>
+          </select>
+        </div>
+      </div>
+
+      <% if (valArquivo) { %>
+      <div class="alert bg-base-300 border-base-content/10 py-3">
+        <i data-lucide="file-code-2" class="w-4 h-4 shrink-0 text-base-content/50"></i>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs font-semibold text-base-content/70 mb-0.5">Arquivo no disco</p>
+          <code class="text-sm font-mono break-all text-primary"><%= valArquivo %></code>
+          <p class="text-xs text-base-content/50 mt-1">
+            Caminho completo:
+            <code class="bg-base-content/10 px-1 rounded break-all"><%= scriptsDir %>/<%= valArquivo %></code>
+          </p>
+          <p class="text-xs text-base-content/50 mt-1">
+            Para chamar de outro script:
+            <code class="bg-base-content/10 px-1 rounded">
+              <% if (valTipo === 'PYTHON') { %>python3 ./<%= valArquivo %><% } else if (valTipo === 'NODEJS') { %>node ./<%= valArquivo %><% } else { %>bash ./<%= valArquivo %><% } %>
+            </code>
+          </p>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Conteúdo do script *</span>
+          <span class="label-text-alt text-base-content/50" id="editor-lang-hint">
+            <%= valTipo === 'NODEJS' ? 'JavaScript' : (valTipo === 'PYTHON' ? 'Python' : 'Shell') %>
+          </span>
+        </label>
+        <div
+          id="monaco-editor"
+          class="border border-base-content/20 rounded-lg overflow-hidden"
+          style="height: 400px; min-height: 200px;"
+        ></div>
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <a href="/scripts" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          <% if (isEdit) { %><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações
+          <% } else { %><i data-lucide="plus" class="w-4 h-4"></i> Criar Script<% } %>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Conteúdo inicial do editor (vindo do servidor)
+  window.__scriptConteudo__ = <%- JSON.stringify(valConteudo) %>;
+  window.__scriptTipo__ = <%- JSON.stringify(valTipo) %>;
+</script>
+
+<!-- Monaco Editor via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
+<script>
+  require.config({
+    paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs' }
+  });
+
+  var monacoEditor;
+
+  function tipoToLang(tipo) {
+    if (tipo === 'NODEJS') return 'javascript';
+    if (tipo === 'PYTHON') return 'python';
+    return 'shell';
+  }
+
+  require(['vs/editor/editor.main'], function() {
+    var lang = tipoToLang(window.__scriptTipo__);
+
+    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
+      value: window.__scriptConteudo__,
+      language: lang,
+      theme: document.documentElement.getAttribute('data-theme') === 'fatia' ? 'vs-dark' : 'vs-dark',
+      fontSize: 14,
+      minimap: { enabled: false },
+      lineNumbers: 'on',
+      wordWrap: 'on',
+      automaticLayout: true,
+      scrollBeyondLastLine: false,
+    });
+
+    // Atualiza hidden input com conteúdo do editor no submit
+    document.getElementById('script-form').addEventListener('submit', function() {
+      document.getElementById('conteudo-hidden').value = monacoEditor.getValue();
+    });
+
+    // Troca de linguagem ao mudar tipo
+    document.getElementById('tipo').addEventListener('change', function() {
+      var novaLang = tipoToLang(this.value);
+      monaco.editor.setModelLanguage(monacoEditor.getModel(), novaLang);
+      var hints = { SHELL: 'Shell', NODEJS: 'JavaScript', PYTHON: 'Python' };
+      document.getElementById('editor-lang-hint').textContent = hints[this.value] || 'Shell';
+    });
+  });
+</script>
+
+<%- include('../layouts/footer') %>
