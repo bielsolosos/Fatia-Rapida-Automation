@@ -14,6 +14,7 @@ import { schedulerPlugin } from "./plugins/scheduler.js";
 import { authRoutes } from "./routes/auth.js";
 import { dashboardRoutes } from "./routes/dashboard.js";
 import { execucaoRoutes } from "./routes/execucoes.js";
+import { scriptRoutes } from "./routes/scripts.js";
 import { tarefaRoutes } from "./routes/tarefas.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -40,11 +41,14 @@ export async function buildApp() {
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
+          "'unsafe-eval'",
           "https://cdn.tailwindcss.com",
           "https://cdn.jsdelivr.net",
         ],
         styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
         imgSrc: ["'self'", "data:"],
+        workerSrc: ["'self'", "blob:"],
+        fontSrc: ["'self'", "data:", "https://cdn.jsdelivr.net"],
       },
     },
   });
@@ -82,6 +86,7 @@ export async function buildApp() {
   await app.register(dashboardRoutes);
   await app.register(tarefaRoutes, { prefix: "/tarefas" });
   await app.register(execucaoRoutes, { prefix: "/execucoes" });
+  await app.register(scriptRoutes, { prefix: "/scripts" });
 
   // ── Scheduler (must be registered after prisma) ──
   if (config.enableScheduler) {

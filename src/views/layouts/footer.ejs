@@ -83,6 +83,28 @@
         return;
       }
     });
+
+    // Script selector toggle em tarefa-form
+    (function() {
+      var scriptSelect = document.getElementById('scriptId');
+      var comandoSection = document.getElementById('comando-section');
+      if (!scriptSelect || !comandoSection) return;
+      function toggleComando() {
+        var hasScript = scriptSelect.value !== '';
+        comandoSection.style.opacity = hasScript ? '0.4' : '1';
+        comandoSection.querySelectorAll('textarea, input').forEach(function(el) {
+          el.disabled = hasScript;
+        });
+        var label = comandoSection.querySelector('.label-text');
+        if (label) {
+          label.textContent = hasScript
+            ? 'Comando / Payload (ignorado — script vinculado)'
+            : 'Comando / Payload';
+        }
+      }
+      toggleComando();
+      scriptSelect.addEventListener('change', toggleComando);
+    })();
   </script>
 </body>
 </html>

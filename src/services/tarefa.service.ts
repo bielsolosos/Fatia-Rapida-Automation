@@ -19,12 +19,13 @@ export async function createTarefa(
       webhookUrl: input.webhookUrl || null,
       diasSemana: JSON.stringify(input.diasSemana),
       horarios: JSON.stringify(input.horarios),
+      scriptId: input.scriptId ?? null,
     },
   });
 }
 
 /**
- * Atualiza uma tarefa: reexcria os agendamentos (delete + create).
+ * Atualiza uma tarefa.
  */
 export async function updateTarefa(
   prisma: PrismaClient,
@@ -40,17 +41,19 @@ export async function updateTarefa(
       webhookUrl: input.webhookUrl || null,
       diasSemana: JSON.stringify(input.diasSemana),
       horarios: JSON.stringify(input.horarios),
+      scriptId: input.scriptId ?? null,
     },
   });
 }
 
 /**
- * Busca tarefa por ID com agendamentos.
+ * Busca tarefa por ID.
  */
 export async function getTarefaById(prisma: PrismaClient, id: string) {
   return prisma.tarefa.findUnique({
     where: { id },
     include: {
+      script: true,
       _count: { select: { execucoes: true } },
     },
   });
@@ -62,6 +65,7 @@ export async function getTarefaById(prisma: PrismaClient, id: string) {
 export async function listTarefas(prisma: PrismaClient) {
   return prisma.tarefa.findMany({
     include: {
+      script: { select: { id: true, nome: true } },
       _count: { select: { execucoes: true } },
     },
     orderBy: { createdAt: "desc" },

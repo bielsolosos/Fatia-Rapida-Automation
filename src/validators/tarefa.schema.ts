@@ -23,6 +23,12 @@ export const tarefaCreateSchema = z.object({
   horarios: z
     .array(z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM"))
     .min(1, "Adicione pelo menos um horário"),
+  scriptId: z
+    .string()
+    .uuid()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
 });
 
 export type TarefaCreateInput = z.infer<typeof tarefaCreateSchema>;
@@ -56,6 +62,8 @@ export function parseFormTarefa(
       ? [String(horariosRaw)].filter(Boolean)
       : [];
 
+  const scriptId = body.scriptId ? String(body.scriptId) : undefined;
+
   return {
     nome,
     descricao: descricao || "",
@@ -63,5 +71,6 @@ export function parseFormTarefa(
     webhookUrl: webhookUrl || undefined,
     diasSemana,
     horarios,
+    scriptId: scriptId || undefined,
   };
 }

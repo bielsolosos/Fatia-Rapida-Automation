@@ -23,7 +23,10 @@ export const execucaoRoutes: FastifyPluginAsync = async (app) => {
     const [execucoes, total] = await Promise.all([
       app.prisma.execucao.findMany({
         where,
-        include: { tarefa: { select: { nome: true } } },
+        include: {
+          tarefa: { select: { nome: true } },
+          script: { select: { nome: true } },
+        },
         orderBy: { executadoEm: "desc" },
         skip: (page - 1) * limit,
         take: limit,
@@ -54,7 +57,11 @@ export const execucaoRoutes: FastifyPluginAsync = async (app) => {
                 : "badge-warning";
           const tarefaNome = exec.tarefa
             ? exec.tarefa.nome
-            : exec.tarefaId.substring(0, 8) + "...";
+            : (exec as any).script
+              ? `Script: ${(exec as any).script.nome}`
+              : exec.tarefaId
+                ? exec.tarefaId.substring(0, 8) + "..."
+                : "(avulso)";
           const duracao = exec.duracao ? exec.duracao + "ms" : "—";
           const viewBtn = exec.saida
             ? `<button class="outline btn-sm" hx-get="/execucoes/${exec.id}/detalhes" hx-target="#exec-detail-modal" hx-swap="innerHTML">👁️ Ver</button>`
