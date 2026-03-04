@@ -18,17 +18,17 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     if (!parsed.success) {
       return reply.view("pages/login.ejs", {
         error: parsed.error.issues[0]?.message || "Dados inválidos",
-        email: body.email || "",
+        username: body.username || "",
       });
     }
 
-    const { email, password } = parsed.data;
-    const success = await app.login(reply, email, password);
+    const { username, password } = parsed.data;
+    const success = await app.login(reply, username, password);
 
     if (!success) {
       return reply.view("pages/login.ejs", {
-        error: "Email ou senha inválidos",
-        email,
+        error: "Usuário ou senha inválidos",
+        username,
       });
     }
 

@@ -21,7 +21,7 @@ export const config = {
   databaseUrl: required("DATABASE_URL"),
 
   // Admin (single-user)
-  adminEmail: required("ADMIN_EMAIL"),
+  adminUsername: required("ADMIN_EMAIL"),
   adminPasswordHash: required("ADMIN_PASSWORD_HASH"),
 
   // Session

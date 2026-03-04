@@ -5,7 +5,7 @@ import { config } from "../config.js";
 
 // ── Session data shape ──
 interface SessionData {
-  email: string;
+  username: string;
   authenticatedAt: string;
 }
 
@@ -84,11 +84,11 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
     "login",
     async (
       reply: FastifyReply,
-      email: string,
+      username: string,
       password: string,
     ): Promise<boolean> => {
       // Validate credentials against env config
-      if (email !== config.adminEmail) return false;
+      if (username !== config.adminUsername) return false;
 
       const valid = await bcrypt.compare(password, config.adminPasswordHash);
       if (!valid) return false;
@@ -97,7 +97,7 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
       const sid = generateSessionId();
       const expiresAt = new Date(Date.now() + config.sessionMaxAge);
       const data: SessionData = {
-        email,
+        username,
         authenticatedAt: new Date().toISOString(),
       };
 
@@ -182,7 +182,7 @@ declare module "fastify" {
   interface FastifyInstance {
     login: (
       reply: FastifyReply,
-      email: string,
+      username: string,
       password: string,
     ) => Promise<boolean>;
     logout: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;

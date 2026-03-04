@@ -30,17 +30,18 @@
 
         <form method="POST" action="/login" class="flex flex-col gap-3">
           <div class="form-control">
-            <label class="label" for="email">
-              <span class="label-text">Email</span>
+            <label class="label" for="username">
+              <span class="label-text">Usuário</span>
             </label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="admin@fatia.local"
-              value="<%= typeof email !== 'undefined' ? email : '' %>"
+              type="text"
+              id="username"
+              name="username"
+              placeholder="admin"
+              value="<%= typeof username !== 'undefined' ? username : '' %>"
               required
               autofocus
+              autocomplete="username"
               class="input input-bordered w-full"
             >
           </div>
