@@ -93,7 +93,11 @@
           <p class="text-xs font-semibold text-base-content/70 mb-0.5">Arquivo no disco</p>
           <code class="text-sm font-mono break-all text-primary"><%= valArquivo %></code>
           <p class="text-xs text-base-content/50 mt-1">
-            Para chamar este script de outro, use:
+            Caminho completo:
+            <code class="bg-base-content/10 px-1 rounded break-all"><%= scriptsDir %>/<%= valArquivo %></code>
+          </p>
+          <p class="text-xs text-base-content/50 mt-1">
+            Para chamar de outro script:
             <code class="bg-base-content/10 px-1 rounded">
               <% if (valTipo === 'PYTHON') { %>python3 ./<%= valArquivo %><% } else if (valTipo === 'NODEJS') { %>node ./<%= valArquivo %><% } else { %>bash ./<%= valArquivo %><% } %>
             </code>

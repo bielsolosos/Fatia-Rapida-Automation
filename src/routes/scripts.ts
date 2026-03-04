@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { config } from "../config.js";
 import {
   createScript,
   deleteScript,
@@ -20,6 +21,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     const scripts = await listScripts(app.prisma);
     return reply.view("pages/scripts.ejs", {
       scripts,
+      scriptsDir: config.scriptsDir,
       isAuthenticated: true,
       currentPage: "scripts",
     });
@@ -28,6 +30,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
   // GET /scripts/novo — formulário de criação
   app.get("/novo", async (_request, reply) => {
     return reply.view("pages/script-form.ejs", {
+      scriptsDir: config.scriptsDir,
       isAuthenticated: true,
       currentPage: "scripts",
     });
@@ -45,6 +48,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     }
     return reply.view("pages/script-form.ejs", {
       script,
+      scriptsDir: config.scriptsDir,
       isAuthenticated: true,
       currentPage: "scripts",
     });
