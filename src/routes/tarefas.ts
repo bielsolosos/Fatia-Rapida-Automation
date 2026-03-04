@@ -34,6 +34,23 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
+  // GET /tarefas/:id/clonar — form pre-filled to clone
+  app.get<{ Params: { id: string } }>("/clonar/:id", async (request, reply) => {
+    const tarefa = await getTarefaById(app.prisma, request.params.id);
+    if (!tarefa) {
+      return reply.status(404).view("pages/error.ejs", {
+        statusCode: 404,
+        message: "Tarefa não encontrada",
+        isAuthenticated: true,
+      });
+    }
+    return reply.view("pages/tarefa-form.ejs", {
+      prefill: tarefa,
+      isAuthenticated: true,
+      currentPage: "tarefas",
+    });
+  });
+
   // GET /tarefas/:id/editar — form to edit
   app.get<{ Params: { id: string } }>("/:id/editar", async (request, reply) => {
     const tarefa = await getTarefaById(app.prisma, request.params.id);
@@ -145,16 +162,4 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     // Return empty string so HTMX removes the element
     return reply.send("");
   });
-
-  // GET /tarefas/partial/agendamento-fields — return partial for dynamic JS
-  app.get<{ Querystring: { index?: string } }>(
-    "/partial/agendamento-fields",
-    async (request, reply) => {
-      const index = Number(request.query.index) || 0;
-      return reply.view("partials/agendamento-fields.ejs", {
-        index,
-        agendamento: null,
-      });
-    },
-  );
 };

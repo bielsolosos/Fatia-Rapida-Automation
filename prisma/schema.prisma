@@ -24,26 +24,14 @@ model Tarefa {
   comandoOuPayload String?  @map("comando_ou_payload")
   webhookUrl       String?  @map("webhook_url")
   ativo            Boolean  @default(true)
+  diasSemana       String   @default("[]") @map("dias_semana") // JSON: number[] (0=dom, 6=sab)
+  horarios         String   @default("[]") // JSON: string[] ("HH:MM")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
-  agendamentos Agendamento[]
-  execucoes    Execucao[]
+  execucoes Execucao[]
 
   @@map("tarefas")
-}
-
-// ── Agendamentos (dias + horários) ──
-model Agendamento {
-  id         String  @id @default(uuid())
-  diasSemana String  @map("dias_semana") // JSON: number[] (0=dom, 6=sab)
-  horarios   String // JSON: string[] ("HH:MM")
-  ativo      Boolean @default(true)
-
-  tarefaId String @map("tarefa_id")
-  tarefa   Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
-
-  @@map("agendamentos")
 }
 
 // ── Log de execuções ──

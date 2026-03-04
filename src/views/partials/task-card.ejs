@@ -15,22 +15,17 @@
       <p class="text-xs text-base-content/50 flex items-center gap-1"><i data-lucide="link" class="w-3 h-3"></i> Webhook configurado</p>
     <% } %>
 
-    <% if (tarefa.agendamentos && tarefa.agendamentos.length > 0) { %>
-      <details class="text-sm">
-        <summary class="cursor-pointer text-base-content/60"><i data-lucide="calendar" class="w-4 h-4 inline align-text-bottom"></i> <%= tarefa.agendamentos.length %> agendamento(s)</summary>
-        <ul class="mt-2 space-y-1 pl-2">
-          <% tarefa.agendamentos.forEach(function(ag) { %>
-            <% const dias = JSON.parse(ag.diasSemana); %>
-            <% const horarios = JSON.parse(ag.horarios); %>
-            <% const nomes = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; %>
-            <li class="text-xs text-base-content/70">
-              <strong><%= dias.map(function(d) { return nomes[d]; }).join(', ') %></strong>
-              às <%= horarios.join(', ') %>
-              <% if (!ag.ativo) { %><em class="text-warning">(pausado)</em><% } %>
-            </li>
-          <% }); %>
-        </ul>
-      </details>
+    <% if (tarefa.diasSemana && tarefa.horarios) { %>
+      <% const dias = JSON.parse(tarefa.diasSemana); %>
+      <% const horarios = JSON.parse(tarefa.horarios); %>
+      <% const nomes = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb']; %>
+      <% if (dias.length > 0 && horarios.length > 0) { %>
+        <p class="text-xs text-base-content/60 flex items-center gap-1">
+          <i data-lucide="calendar" class="w-3 h-3"></i>
+          <strong><%= dias.map(function(d) { return nomes[d]; }).join(', ') %></strong>
+          &nbsp;às&nbsp;<%= horarios.join(', ') %>
+        </p>
+      <% } %>
     <% } %>
 
     <div class="card-actions justify-end mt-2">
@@ -45,6 +40,10 @@
 
       <a href="/tarefas/<%= tarefa.id %>/editar" class="btn btn-sm btn-outline">
         <i data-lucide="pencil" class="w-4 h-4"></i> Editar
+      </a>
+
+      <a href="/tarefas/clonar/<%= tarefa.id %>" class="btn btn-sm btn-outline" title="Clonar">
+        <i data-lucide="copy" class="w-4 h-4"></i>
       </a>
 
       <button

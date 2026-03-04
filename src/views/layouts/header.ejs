@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="fatia">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,10 +13,10 @@
   <script src="/public/js/htmx.min.js"></script>
   <link rel="stylesheet" href="/public/css/style.css">
 </head>
-<body class="min-h-screen bg-base-100">
+<body class="min-h-screen bg-base-100 flex flex-col">
   <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
     <%- include('../partials/navbar') %>
   <% } %>
 
-  <main class="container mx-auto px-4 py-6 max-w-7xl">
+  <main class="container mx-auto px-4 py-6 max-w-7xl flex-1">
     <div id="toast-container" class="toast toast-top toast-end z-50 pointer-events-none"></div>

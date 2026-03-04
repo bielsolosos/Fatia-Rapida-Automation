@@ -19,50 +19,42 @@ interface SchedulerManager {
 }
 
 export const schedulerPlugin = fp(async (app: FastifyInstance) => {
-  // Map: "tarefaId:agendamentoId:index" -> ScheduledTask
+  // Map: "tarefaId:index" -> ScheduledTask
   const jobs = new Map<string, ScheduledTask>();
 
-  function jobKey(
-    tarefaId: string,
-    agendamentoId: string,
-    index: number,
-  ): string {
-    return `${tarefaId}:${agendamentoId}:${index}`;
+  function jobKey(tarefaId: string, index: number): string {
+    return `${tarefaId}:${index}`;
   }
 
   const manager: SchedulerManager = {
     async loadAll() {
-      const agendamentos = await app.prisma.agendamento.findMany({
-        where: {
-          ativo: true,
-          tarefa: { ativo: true },
-        },
-        include: { tarefa: true },
+      const tarefas = await app.prisma.tarefa.findMany({
+        where: { ativo: true },
       });
 
       let jobCount = 0;
-      for (const ag of agendamentos) {
-        const expressions = generateCronExpressions(ag.diasSemana, ag.horarios);
+      for (const tarefa of tarefas) {
+        const expressions = generateCronExpressions(
+          tarefa.diasSemana,
+          tarefa.horarios,
+        );
 
         for (let i = 0; i < expressions.length; i++) {
-          const expr = expressions[i];
-          const key = jobKey(ag.tarefaId, ag.id, i);
+          const key = jobKey(tarefa.id, i);
 
           const task = cron.schedule(
-            expr,
+            expressions[i],
             async () => {
               app.log.info(
-                `⏰ Executando tarefa "${ag.tarefa.nome}" (${ag.tarefaId})`,
+                `⏰ Executando tarefa "${tarefa.nome}" (${tarefa.id})`,
               );
               try {
-                await executeTask(app.prisma, ag.tarefa);
+                await executeTask(app.prisma, tarefa);
               } catch (err) {
-                app.log.error(err, `Erro ao executar tarefa ${ag.tarefaId}`);
+                app.log.error(err, `Erro ao executar tarefa ${tarefa.id}`);
               }
             },
-            {
-              timezone: process.env.TZ || "America/Sao_Paulo",
-            },
+            { timezone: process.env.TZ || "America/Sao_Paulo" },
           );
 
           jobs.set(key, task);
@@ -71,44 +63,40 @@ export const schedulerPlugin = fp(async (app: FastifyInstance) => {
       }
 
       app.log.info(
-        `📋 Scheduler: ${jobCount} cron jobs carregados para ${agendamentos.length} agendamentos`,
+        `📋 Scheduler: ${jobCount} cron jobs carregados para ${tarefas.length} tarefas`,
       );
     },
 
     async scheduleTask(tarefaId: string) {
-      const agendamentos = await app.prisma.agendamento.findMany({
-        where: { tarefaId, ativo: true, tarefa: { ativo: true } },
-        include: { tarefa: true },
+      const tarefa = await app.prisma.tarefa.findUnique({
+        where: { id: tarefaId, ativo: true },
       });
 
-      for (const ag of agendamentos) {
-        const expressions = generateCronExpressions(ag.diasSemana, ag.horarios);
+      if (!tarefa) return;
 
-        for (let i = 0; i < expressions.length; i++) {
-          const key = jobKey(tarefaId, ag.id, i);
+      const expressions = generateCronExpressions(
+        tarefa.diasSemana,
+        tarefa.horarios,
+      );
 
-          // Skip if already scheduled
-          if (jobs.has(key)) continue;
+      for (let i = 0; i < expressions.length; i++) {
+        const key = jobKey(tarefaId, i);
+        if (jobs.has(key)) continue;
 
-          const task = cron.schedule(
-            expressions[i],
-            async () => {
-              app.log.info(
-                `⏰ Executando tarefa "${ag.tarefa.nome}" (${tarefaId})`,
-              );
-              try {
-                await executeTask(app.prisma, ag.tarefa);
-              } catch (err) {
-                app.log.error(err, `Erro ao executar tarefa ${tarefaId}`);
-              }
-            },
-            {
-              timezone: process.env.TZ || "America/Sao_Paulo",
-            },
-          );
+        const task = cron.schedule(
+          expressions[i],
+          async () => {
+            app.log.info(`⏰ Executando tarefa "${tarefa.nome}" (${tarefaId})`);
+            try {
+              await executeTask(app.prisma, tarefa);
+            } catch (err) {
+              app.log.error(err, `Erro ao executar tarefa ${tarefaId}`);
+            }
+          },
+          { timezone: process.env.TZ || "America/Sao_Paulo" },
+        );
 
-          jobs.set(key, task);
-        }
+        jobs.set(key, task);
       }
     },
 

@@ -1,12 +1,20 @@
+<%
+  const isEdit  = typeof tarefa  !== 'undefined';
+  const isClone = typeof prefill !== 'undefined';
+  const src = isEdit ? tarefa : (isClone ? prefill : null);
+  const pageTitle = isEdit ? 'Editar Tarefa' : (isClone ? 'Clonar Tarefa' : 'Nova Tarefa');
+%>
 <%- include('../layouts/header', {
-  title: typeof tarefa !== 'undefined' ? 'Editar Tarefa' : 'Nova Tarefa',
+  title: pageTitle,
   isAuthenticated: true,
   currentPage: 'tarefas'
 }) %>
 
 <div class="max-w-2xl mx-auto space-y-6">
   <h2 class="text-2xl font-bold flex items-center gap-2">
-    <% if (typeof tarefa !== 'undefined') { %><i data-lucide="pencil" class="w-6 h-6"></i> Editar Tarefa<% } else { %><i data-lucide="plus" class="w-6 h-6"></i> Nova Tarefa<% } %>
+    <% if (isEdit) { %><i data-lucide="pencil" class="w-6 h-6"></i> Editar Tarefa
+    <% } else if (isClone) { %><i data-lucide="copy" class="w-6 h-6"></i> Clonar Tarefa
+    <% } else { %><i data-lucide="plus" class="w-6 h-6"></i> Nova Tarefa<% } %>
   </h2>
 
   <% if (typeof errors !== 'undefined' && errors) { %>
@@ -28,11 +36,11 @@
 
   <form
     method="POST"
-    action="<%= typeof tarefa !== 'undefined' ? '/tarefas/' + tarefa.id : '/tarefas' %>"
+    action="<%= isEdit ? '/tarefas/' + tarefa.id : '/tarefas' %>"
     class="card bg-base-200 shadow"
   >
     <div class="card-body space-y-4">
-      <% if (typeof tarefa !== 'undefined') { %>
+      <% if (isEdit) { %>
         <input type="hidden" name="_method" value="PUT">
       <% } %>
 
@@ -43,7 +51,7 @@
           id="nome"
           name="nome"
           class="input input-bordered w-full"
-          value="<%= typeof tarefa !== 'undefined' ? tarefa.nome : (typeof values !== 'undefined' && values.nome ? values.nome : '') %>"
+          value="<%= src ? src.nome : (typeof values !== 'undefined' && values.nome ? values.nome : '') %>"
           placeholder="Ex: Ponto matutino"
           required
           maxlength="100"
@@ -58,7 +66,7 @@
           class="textarea textarea-bordered w-full"
           placeholder="Descrição opcional..."
           maxlength="500"
-        ><%= typeof tarefa !== 'undefined' && tarefa.descricao ? tarefa.descricao : (typeof values !== 'undefined' && values.descricao ? values.descricao : '') %></textarea>
+        ><%= src && src.descricao ? src.descricao : (typeof values !== 'undefined' && values.descricao ? values.descricao : '') %></textarea>
       </div>
 
       <div class="form-control">
@@ -68,7 +76,7 @@
           id="webhookUrl"
           name="webhookUrl"
           class="input input-bordered w-full"
-          value="<%= typeof tarefa !== 'undefined' && tarefa.webhookUrl ? tarefa.webhookUrl : (typeof values !== 'undefined' && values.webhookUrl ? values.webhookUrl : '') %>"
+          value="<%= src && src.webhookUrl ? src.webhookUrl : (typeof values !== 'undefined' && values.webhookUrl ? values.webhookUrl : '') %>"
           placeholder="https://discord.com/api/webhooks/..."
         >
       </div>
@@ -81,32 +89,23 @@
           class="textarea textarea-bordered w-full font-mono text-sm"
           placeholder="Payload JSON ou comando..."
           maxlength="2000"
-        ><%= typeof tarefa !== 'undefined' && tarefa.comandoOuPayload ? tarefa.comandoOuPayload : (typeof values !== 'undefined' && values.comandoOuPayload ? values.comandoOuPayload : '') %></textarea>
+        ><%= src && src.comandoOuPayload ? src.comandoOuPayload : (typeof values !== 'undefined' && values.comandoOuPayload ? values.comandoOuPayload : '') %></textarea>
       </div>
 
-      <div class="divider"><i data-lucide="calendar" class="w-4 h-4"></i> Agendamentos</div>
+      <div class="divider"><i data-lucide="calendar" class="w-4 h-4"></i> Agendamento</div>
 
-      <div id="agendamentos-container" class="space-y-4">
-        <%
-          const agendamentos = typeof tarefa !== 'undefined' && tarefa.agendamentos
-            ? tarefa.agendamentos
-            : [null];
-        %>
-        <% agendamentos.forEach(function(ag, i) { %>
-          <%- include('../partials/agendamento-fields', { index: i, agendamento: ag }) %>
-        <% }); %>
+      <div id="agendamentos-container">
+        <%- include('../partials/agendamento-fields', { tarefa: src }) %>
       </div>
-
-      <button type="button" class="btn btn-outline btn-sm" onclick="addAgendamento()">
-        <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Agendamento
-      </button>
 
       <div class="divider"></div>
 
       <div class="flex gap-3 justify-end">
         <a href="/tarefas" class="btn btn-ghost">Cancelar</a>
         <button type="submit" class="btn btn-primary">
-          <% if (typeof tarefa !== 'undefined') { %><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações<% } else { %><i data-lucide="plus" class="w-4 h-4"></i> Criar Tarefa<% } %>
+          <% if (isEdit) { %><i data-lucide="save" class="w-4 h-4"></i> Salvar Alterações
+          <% } else if (isClone) { %><i data-lucide="copy" class="w-4 h-4"></i> Clonar Tarefa
+          <% } else { %><i data-lucide="plus" class="w-4 h-4"></i> Criar Tarefa<% } %>
         </button>
       </div>
     </div>
