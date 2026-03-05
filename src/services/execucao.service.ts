@@ -7,6 +7,12 @@ import { sendDiscordWebhook } from "./webhook.service.js";
 
 const execAsync = promisify(exec);
 
+type CommandResult = {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+};
+
 /**
  * Executa uma tarefa: cria registro de execução, roda o comando, envia para Discord, salva no banco.
  */
@@ -65,32 +71,8 @@ export async function executeTask(
           }
         }
 
-        const result = await new Promise<{
-          stdout: string;
-          stderr: string;
-          exitCode: number;
-        }>((resolve) => {
-          let out = "";
-          let err = "";
-          const proc = spawn(cmd, args, {
-            timeout: 60_000,
-            cwd: config.scriptsDir,
-            env: process.env,
-          });
-          proc.stdout.on("data", (d: Buffer) => (out += d.toString()));
-          proc.stderr.on("data", (d: Buffer) => (err += d.toString()));
-          proc.on("close", (code) =>
-            resolve({
-              stdout: out.trim(),
-              stderr: err.trim(),
-              exitCode: code ?? 1,
-            }),
-          );
-          proc.on("error", (e) =>
-            resolve({ stdout: "", stderr: e.message, exitCode: 1 }),
-          );
-        });
-        stdout = result.stdout;
+        const result = await runCommand(cmd, args, { cwd: config.scriptsDir });
+
         stderr = result.stderr;
         saidaTipo = "script";
 
@@ -127,7 +109,7 @@ export async function executeTask(
         descricao: tarefa.descricao,
         payload:
           saidaTipo === "shell" || saidaTipo === "script"
-            ? `**stdout:**\n\`\`\`\n${stdout || "(sem saída)"}\n\`\`\`${stderr ? `\n**stderr:**\n\`\`\`\n${stderr}\n\`\`\`` : ""}`
+            ? `**stdout:**\n${stdout || "(sem saída)"}\n\n\n\`\`\`${stderr ? `\n**stderr:**\n\n\n\n${stderr}\n` : ""}`
             : tarefa.comandoOuPayload,
       });
     }
@@ -163,4 +145,57 @@ export async function executeTask(
       },
     });
   }
+}
+
+/**
+ * Função principal que tem como objetivo de ser o executor de scripts Node, Python e Shell.
+ *
+ * Retorna uma promise com o output tanto positivo quanto negativo desse input
+ *
+ */
+async function runCommand(
+  cmd: string,
+  args: string[] = [],
+  options?: {
+    cwd?: string;
+    timeout?: number;
+    env?: NodeJS.ProcessEnv;
+  },
+): Promise<CommandResult> {
+  return new Promise((resolve) => {
+    let out = "";
+    let err = "";
+
+    //spawn -> Worker do node que executa comando.
+    const proc = spawn(cmd, args, {
+      cwd: options?.cwd,
+      timeout: options?.timeout ?? 60_000,
+      env: options?.env ?? process.env,
+    });
+
+    // Buffers para coletarmos o resultado geral do sistema
+    proc.stdout.on("data", (d: Buffer) => {
+      out += d.toString();
+    });
+
+    proc.stderr.on("data", (d: Buffer) => {
+      err += d.toString();
+    });
+
+    proc.on("close", (code) => {
+      resolve({
+        stdout: out.trim(),
+        stderr: err.trim(),
+        exitCode: code ?? 1,
+      });
+    });
+
+    proc.on("error", (e) => {
+      resolve({
+        stdout: "",
+        stderr: e.message,
+        exitCode: 1,
+      });
+    });
+  });
 }

@@ -1,0 +1,277 @@
+<%- include('../layouts/header', {
+  title: 'Sobre o Projeto',
+  isAuthenticated: typeof isAuthenticated !== 'undefined' ? isAuthenticated : false,
+  currentPage: 'about'
+}) %>
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+  <!-- Hero -->
+  <div class="text-center py-8 space-y-3">
+    <div class="flex justify-center">
+      <div class="bg-primary/10 p-5 rounded-full">
+        <i data-lucide="pizza" class="w-14 h-14 text-primary"></i>
+      </div>
+    </div>
+    <h1 class="text-4xl font-bold tracking-tight">Fatia Rápida</h1>
+    <p class="text-base-content/60 text-lg max-w-xl mx-auto">
+      Plataforma leve de automação de tarefas agendadas, pensada para rodar em
+      <strong>Raspberry Pi</strong> com recursos limitados.
+    </p>
+    <div class="flex justify-center gap-3 pt-2 flex-wrap">
+      <a
+        href="https://github.com/bielsolosos"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline btn-sm gap-2"
+      >
+        <i data-lucide="github" class="w-4 h-4"></i>
+        GitHub — Perfil
+      </a>
+      <a
+        href="https://github.com/bielsolosos/fatia-rapida-automation"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary btn-sm gap-2"
+      >
+        <i data-lucide="code-2" class="w-4 h-4"></i>
+        Repositório do projeto
+      </a>
+    </div>
+  </div>
+
+  <!-- O que é -->
+  <div class="card bg-base-200 shadow-sm">
+    <div class="card-body gap-3">
+      <h2 class="card-title text-lg">
+        <i data-lucide="info" class="w-5 h-5 text-primary"></i>
+        O que é o Fatia Rápida?
+      </h2>
+      <p class="text-base-content/80 leading-relaxed">
+        O Fatia Rápida é um sistema web de automação de tarefas agendadas via cron. Ele permite
+        criar <strong>tarefas</strong> que executam comandos shell, scripts (Shell, Node.js ou Python)
+        ou disparam webhooks no Discord em horários e dias da semana configuráveis.
+      </p>
+      <p class="text-base-content/80 leading-relaxed">
+        O sistema foi projetado para ser <strong>leve e autossuficiente</strong> — roda inteiramente
+        sem Docker, sem bancos de dados externos, sem filas de mensagens. Tudo fica em um único
+        processo Node.js com um banco SQLite local, ideal para um Raspberry Pi ou qualquer VPS
+        de entrada.
+      </p>
+
+      <ul class="mt-1 space-y-1 text-sm text-base-content/70">
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Agendamento por dias da semana + horários (múltiplos por tarefa)
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Editor de scripts integrado com Monaco (o mesmo do VS Code) — Shell, JS e Python
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Execução manual de scripts com saída em tempo real via HTMX
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Notificações via webhook Discord (por tarefa, opcional)
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Histórico completo de execuções com stdout/stderr capturados
+        </li>
+        <li class="flex items-start gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-success mt-0.5 shrink-0"></i>
+          Autenticação single-user com sessões em SQLite — sem JWT, sem Redis
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Stack -->
+  <div class="card bg-base-200 shadow-sm">
+    <div class="card-body gap-3">
+      <h2 class="card-title text-lg">
+        <i data-lucide="layers" class="w-5 h-5 text-primary"></i>
+        Stack de tecnologias
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="table table-sm w-full">
+          <thead>
+            <tr>
+              <th>Camada</th>
+              <th>Tecnologia</th>
+              <th class="hidden sm:table-cell">Por quê</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <tr>
+              <td class="font-medium">HTTP Server</td>
+              <td><a href="https://fastify.dev" target="_blank" rel="noopener noreferrer" class="link link-primary">Fastify v5</a></td>
+              <td class="hidden sm:table-cell text-base-content/60">Leve, rápido, plugin-first — menos RAM que Express</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Templates</td>
+              <td><a href="https://ejs.co" target="_blank" rel="noopener noreferrer" class="link link-primary">EJS</a> + @fastify/view</td>
+              <td class="hidden sm:table-cell text-base-content/60">Renderização server-side, sem bundle JS</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Interatividade</td>
+              <td><a href="https://htmx.org" target="_blank" rel="noopener noreferrer" class="link link-primary">HTMX v2</a></td>
+              <td class="hidden sm:table-cell text-base-content/60">Swap parcial de HTML via <code class="font-mono">hx-*</code>, sem framework frontend</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Estilos</td>
+              <td><a href="https://daisyui.com" target="_blank" rel="noopener noreferrer" class="link link-primary">DaisyUI v4</a> + Tailwind CSS</td>
+              <td class="hidden sm:table-cell text-base-content/60">Componentes prontos, sem build step</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Banco de dados</td>
+              <td><a href="https://prisma.io" target="_blank" rel="noopener noreferrer" class="link link-primary">Prisma v6</a> + SQLite</td>
+              <td class="hidden sm:table-cell text-base-content/60">Arquivo local, zero infra extra</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Agendamento</td>
+              <td><a href="https://github.com/node-cron/node-cron" target="_blank" rel="noopener noreferrer" class="link link-primary">node-cron v3</a></td>
+              <td class="hidden sm:table-cell text-base-content/60">Expressões cron nativas do Node</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Editor de código</td>
+              <td><a href="https://microsoft.github.io/monaco-editor/" target="_blank" rel="noopener noreferrer" class="link link-primary">Monaco Editor</a></td>
+              <td class="hidden sm:table-cell text-base-content/60">O mesmo editor do VS Code, via CDN</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Validação</td>
+              <td><a href="https://zod.dev" target="_blank" rel="noopener noreferrer" class="link link-primary">Zod v3</a></td>
+              <td class="hidden sm:table-cell text-base-content/60">Schema type-safe no server</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Auth</td>
+              <td>Sessões em SQLite + cookie HMAC</td>
+              <td class="hidden sm:table-cell text-base-content/60">Sem JWT, sem Redis — tudo local</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Notificações</td>
+              <td><a href="https://axios-http.com" target="_blank" rel="noopener noreferrer" class="link link-primary">Axios</a> → Discord Webhook</td>
+              <td class="hidden sm:table-cell text-base-content/60">Opcional por tarefa</td>
+            </tr>
+            <tr>
+              <td class="font-medium">Linguagem</td>
+              <td>TypeScript 5 + tsx</td>
+              <td class="hidden sm:table-cell text-base-content/60">Sem compile em dev (<code class="font-mono">tsx watch</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="card bg-base-200 shadow-sm">
+    <div class="card-body gap-4">
+      <h2 class="card-title text-lg">
+        <i data-lucide="package" class="w-5 h-5 text-primary"></i>
+        Funcionalidades
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+        <div class="flex gap-3 p-3 bg-base-100 rounded-lg">
+          <div class="text-primary mt-0.5"><i data-lucide="lock" class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-semibold text-sm">Autenticação</p>
+            <p class="text-xs text-base-content/60 mt-0.5">Single-user com sessão em cookie HMAC. Sem cadastro, sem OAuth — simples e seguro para uso pessoal.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 p-3 bg-base-100 rounded-lg">
+          <div class="text-primary mt-0.5"><i data-lucide="clipboard-list" class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-semibold text-sm">Tarefas agendadas</p>
+            <p class="text-xs text-base-content/60 mt-0.5">Crie tarefas com dias da semana + horários. Cada tarefa pode executar um script ou um comando shell e notificar via Discord.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 p-3 bg-base-100 rounded-lg">
+          <div class="text-primary mt-0.5"><i data-lucide="code-2" class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-semibold text-sm">Scripts</p>
+            <p class="text-xs text-base-content/60 mt-0.5">Editor Monaco integrado. Crie scripts Shell, Node.js ou Python, execute manualmente ou vincule a uma tarefa.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 p-3 bg-base-100 rounded-lg">
+          <div class="text-primary mt-0.5"><i data-lucide="scroll-text" class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-semibold text-sm">Histórico de execuções</p>
+            <p class="text-xs text-base-content/60 mt-0.5">Cada execução registra status, duração e saída completa (stdout + stderr). Filtre por status ou tarefa.</p>
+          </div>
+        </div>
+
+        <div class="flex gap-3 p-3 bg-base-100 rounded-lg sm:col-span-2">
+          <div class="text-primary mt-0.5"><i data-lucide="timer" class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-semibold text-sm">Scheduler inteligente</p>
+            <p class="text-xs text-base-content/60 mt-0.5">O agendador reage a criações, edições e toggles de tarefas em tempo real — sem precisar reiniciar o servidor. Jobs indexados por chave única para remoção cirúrgica.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Links / CTA -->
+  <div class="card bg-base-200 shadow-sm">
+    <div class="card-body gap-3">
+      <h2 class="card-title text-lg">
+        <i data-lucide="github" class="w-5 h-5 text-primary"></i>
+        Links
+      </h2>
+      <div class="flex flex-wrap gap-3">
+        <a
+          href="https://github.com/bielsolosos/fatia-rapida-automation"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary gap-2"
+        >
+          <i data-lucide="code-2" class="w-4 h-4"></i>
+          Ver código-fonte
+        </a>
+        <a
+          href="https://github.com/bielsolosos/fatia-rapida-automation/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline gap-2"
+        >
+          <i data-lucide="bug" class="w-4 h-4"></i>
+          Reportar problema
+        </a>
+        <a
+          href="https://github.com/bielr"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-ghost gap-2"
+        >
+          <i data-lucide="user" class="w-4 h-4"></i>
+          Perfil do autor
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voltar -->
+  <div class="pb-4">
+    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+      <a href="/" class="btn btn-ghost btn-sm gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao dashboard
+      </a>
+    <% } else { %>
+      <a href="/login" class="btn btn-ghost btn-sm gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao login
+      </a>
+    <% } %>
+  </div>
+
+</div>
+
+<%- include('../layouts/footer') %>

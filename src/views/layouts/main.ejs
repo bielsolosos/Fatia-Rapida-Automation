@@ -15,7 +15,7 @@
   <script src="/public/js/htmx.min.js"></script>
 </head>
 <body>
-  <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+  <% if (isAuthenticated) { %>
     <%- include('../partials/navbar') %>
   <% } %>
 
@@ -27,7 +27,7 @@
   </main>
 
   <footer class="container">
-    <small>🍕 Fatia Rápida v2 — Raspberry Pi Edition</small>
+    <small>Fatia Rápida Automation</small>
   </footer>
 
   <script>
