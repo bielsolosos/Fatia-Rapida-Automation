@@ -1,3 +1,16 @@
+[![Fastify](https://img.shields.io/badge/Fastify-v5-000000?style=for-the-badge&logo=fastify&logoColor=white)](https://fastify.dev)
+[![EJS](https://img.shields.io/badge/EJS-Server%20Templates-8e44ad?style=for-the-badge&logo=ejs&logoColor=white)](https://ejs.co)
+[![HTMX](https://img.shields.io/badge/HTMX-v2-337ab7?style=for-the-badge&logo=htmx&logoColor=white)](https://htmx.org)
+[![DaisyUI](https://img.shields.io/badge/DaisyUI-v4-ff69b4?style=for-the-badge&logo=daisyui&logoColor=white)](https://daisyui.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-CDN-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Prisma](https://img.shields.io/badge/Prisma-v6-2d3748?style=for-the-badge&logo=prisma&logoColor=white)](https://prisma.io)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Zod](https://img.shields.io/badge/Zod-v3-0e8a16?style=for-the-badge)](https://zod.dev)
+[![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-5a29e4?style=for-the-badge&logo=axios&logoColor=white)](https://axios-http.com)
+[![SQLite](https://img.shields.io/badge/SQLite-DB-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
 # Fatia Rápida v2
 
 Plataforma de automação de tarefas agendadas com suporte a webhooks, scripts Shell/Node.js/Python e editor de código integrado. Construída para rodar em **Raspberry Pi** com recursos limitados.
@@ -32,21 +45,21 @@ Plataforma de automação de tarefas agendadas com suporte a webhooks, scripts S
 
 ## Stack
 
-| Camada | Tecnologia | Por quê |
-|--------|-----------|---------|
-| **HTTP Server** | [Fastify v5](https://fastify.dev) | Leve, rápido, plugin-first — menos RAM que Express |
-| **Templates** | [EJS](https://ejs.co) + `@fastify/view` | Renderização server-side, sem bundle JS |
-| **Interatividade** | [HTMX v2](https://htmx.org) | Swap parcial de HTML via `hx-*`, sem framework frontend |
-| **Estilos** | [DaisyUI v4](https://daisyui.com) + [Tailwind CSS](https://tailwindcss.com) (CDN) | Componentes prontos, sem build step |
-| **Ícones** | [Lucide](https://lucide.dev) (CDN) | SVG leve e consistente |
-| **Banco de dados** | SQLite via [Prisma v6](https://prisma.io) | Arquivo local, zero infra extra |
-| **Agendamento** | [node-cron v3](https://github.com/node-cron/node-cron) | Expressões cron nativas do Node |
-| **Execução** | `child_process.spawn` / `exec` (Node built-in) | Sem dependências externas |
-| **Editor de código** | [Monaco Editor 0.52](https://microsoft.github.io/monaco-editor/) (CDN jsDelivr) | VS Code no browser |
-| **Validação** | [Zod v3](https://zod.dev) | Schema type-safe no server |
-| **Auth** | Sessões em SQLite + cookie HMAC | Sem JWT, sem Redis — tudo local |
-| **Notificações** | Discord Webhook via [Axios](https://axios-http.com) | Opcional por tarefa |
-| **Linguagem** | TypeScript 5 + `tsx` | Sem compile em dev (`tsx watch`) |
+| Camada               | Tecnologia                                                                        | Por quê                                                 |
+| -------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **HTTP Server**      | [Fastify v5](https://fastify.dev)                                                 | Leve, rápido, plugin-first — menos RAM que Express      |
+| **Templates**        | [EJS](https://ejs.co) + `@fastify/view`                                           | Renderização server-side, sem bundle JS                 |
+| **Interatividade**   | [HTMX v2](https://htmx.org)                                                       | Swap parcial de HTML via `hx-*`, sem framework frontend |
+| **Estilos**          | [DaisyUI v4](https://daisyui.com) + [Tailwind CSS](https://tailwindcss.com) (CDN) | Componentes prontos, sem build step                     |
+| **Ícones**           | [Lucide](https://lucide.dev) (CDN)                                                | SVG leve e consistente                                  |
+| **Banco de dados**   | SQLite via [Prisma v6](https://prisma.io)                                         | Arquivo local, zero infra extra                         |
+| **Agendamento**      | [node-cron v3](https://github.com/node-cron/node-cron)                            | Expressões cron nativas do Node                         |
+| **Execução**         | `child_process.spawn` / `exec` (Node built-in)                                    | Sem dependências externas                               |
+| **Editor de código** | [Monaco Editor 0.52](https://microsoft.github.io/monaco-editor/) (CDN jsDelivr)   | VS Code no browser                                      |
+| **Validação**        | [Zod v3](https://zod.dev)                                                         | Schema type-safe no server                              |
+| **Auth**             | Sessões em SQLite + cookie HMAC                                                   | Sem JWT, sem Redis — tudo local                         |
+| **Notificações**     | Discord Webhook via [Axios](https://axios-http.com)                               | Opcional por tarefa                                     |
+| **Linguagem**        | TypeScript 5 + `tsx`                                                              | Sem compile em dev (`tsx watch`)                        |
 
 ---
 
@@ -148,6 +161,7 @@ Request HTTP
 ## Banco de dados — Modelos
 
 ### `Session`
+
 ```
 sid       String  @id       -- ID aleatório (32 bytes hex)
 data      String            -- JSON: { username, authenticatedAt }
@@ -155,6 +169,7 @@ expiresAt DateTime          -- TTL do cookie (padrão: 7 dias)
 ```
 
 ### `Tarefa`
+
 ```
 id               String   @id  uuid()
 nome             String
@@ -172,6 +187,7 @@ updatedAt        DateTime
 ```
 
 ### `Script`
+
 ```
 id        String  @id  uuid()
 nome      String
@@ -187,6 +203,7 @@ updatedAt DateTime
 ```
 
 ### `Execucao`
+
 ```
 id          String   @id  uuid()
 status      String        -- "SUCESSO" | "FALHA" | "EM_ANDAMENTO"
@@ -268,11 +285,11 @@ Módulo para criar, editar e executar scripts diretamente na máquina onde o ser
 
 #### Tipos suportados
 
-| Tipo | Extensão | Linux | Windows |
-|---|---|---|---|
-| `SHELL` | `.sh` | `bash -c "arquivo 2>&1"` | `bash -c "arquivo 2>&1"` (Git Bash) |
-| `NODEJS` | `.js` | `node arquivo` | `node arquivo` |
-| `PYTHON` | `.py` | `python3 arquivo` | `python arquivo` |
+| Tipo     | Extensão | Linux                    | Windows                             |
+| -------- | -------- | ------------------------ | ----------------------------------- |
+| `SHELL`  | `.sh`    | `bash -c "arquivo 2>&1"` | `bash -c "arquivo 2>&1"` (Git Bash) |
+| `NODEJS` | `.js`    | `node arquivo`           | `node arquivo`                      |
+| `PYTHON` | `.py`    | `python3 arquivo`        | `python arquivo`                    |
 
 > Para SHELL, stdout e stderr são **mesclados em ordem real** via `2>&1`. Tudo que o script
 > imprimir chega como `stdout` — exatamente como você veria no terminal.
@@ -309,15 +326,15 @@ O `node_modules/` criado é compartilhado por **todos** os `.js` do diretório. 
 
 #### Rotas
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/scripts` | Listagem |
-| `GET` | `/scripts/novo` | Formulário de criação |
-| `GET` | `/scripts/:id/editar` | Formulário de edição |
-| `POST` | `/scripts` | Cria script + arquivo em disco |
-| `POST` | `/scripts/:id` (`_method=PUT`) | Atualiza script + arquivo |
-| `DELETE` | `/scripts/:id` | Remove script + arquivo (HTMX) |
-| `POST` | `/scripts/:id/executar` | Executa manualmente, retorna HTML via HTMX |
+| Método   | Rota                           | Descrição                                  |
+| -------- | ------------------------------ | ------------------------------------------ |
+| `GET`    | `/scripts`                     | Listagem                                   |
+| `GET`    | `/scripts/novo`                | Formulário de criação                      |
+| `GET`    | `/scripts/:id/editar`          | Formulário de edição                       |
+| `POST`   | `/scripts`                     | Cria script + arquivo em disco             |
+| `POST`   | `/scripts/:id` (`_method=PUT`) | Atualiza script + arquivo                  |
+| `DELETE` | `/scripts/:id`                 | Remove script + arquivo (HTMX)             |
+| `POST`   | `/scripts/:id/executar`        | Executa manualmente, retorna HTML via HTMX |
 
 **Arquivos:** `src/routes/scripts.ts` · `src/services/script.service.ts` · `src/validators/script.schema.ts` · `src/views/pages/scripts.ejs` · `src/views/pages/script-form.ejs` · `src/views/partials/script-card.ejs` · `src/views/partials/execution-output.ejs`
 
@@ -343,15 +360,15 @@ Plugin `src/plugins/scheduler.ts` iniciado junto com o servidor:
 2. A cada minuto que bate, dispara `executeTask(prisma, tarefa)`
 3. Jobs identificados por chave `"tarefaId:agendamentoIndex:horarioIndex"` — permite remoção cirúrgica
 
-| Evento | Ação no scheduler |
-|--------|------------------|
-| Startup | `loadAll()` — carrega todos os ativos |
-| Criar tarefa | `scheduleTask(id)` |
-| Editar tarefa | `rescheduleTask(id)` → unschedule + schedule |
-| Toggle ativar | `scheduleTask(id)` |
-| Toggle pausar | `unscheduleTask(id)` |
-| Deletar tarefa | `unscheduleTask(id)` antes do delete |
-| Shutdown | `task.stop()` em todos os jobs |
+| Evento         | Ação no scheduler                            |
+| -------------- | -------------------------------------------- |
+| Startup        | `loadAll()` — carrega todos os ativos        |
+| Criar tarefa   | `scheduleTask(id)`                           |
+| Editar tarefa  | `rescheduleTask(id)` → unschedule + schedule |
+| Toggle ativar  | `scheduleTask(id)`                           |
+| Toggle pausar  | `unscheduleTask(id)`                         |
+| Deletar tarefa | `unscheduleTask(id)` antes do delete         |
+| Shutdown       | `task.stop()` em todos os jobs               |
 
 **Arquivos:** `src/plugins/scheduler.ts` · `src/services/cron.service.ts` · `src/services/execucao.service.ts`
 
@@ -483,6 +500,7 @@ POST /login
 ```
 
 **Verificação a cada request (`onRequest` hook):**
+
 ```
 1. lê cookie "fatia.sid"
 2. verifySignedCookie() — recomputa HMAC e compara
@@ -594,11 +612,11 @@ pm2 start ecosystem.config.cjs
 
 O app usa Content Security Policy restritivo. Regras críticas para desenvolvedores:
 
-| Diretiva | Valor | Impacto |
-|---|---|---|
-| `script-src-attr` | `'none'` | **Proibido** qualquer `onclick=`, `onchange=` em atributo HTML |
-| `script-src` | `'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net` | Scripts externos só do jsDelivr; `unsafe-eval` necessário para Monaco |
-| `worker-src` | `blob:` | Necessário para Monaco Editor funcionar |
+| Diretiva          | Valor                                            | Impacto                                                               |
+| ----------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
+| `script-src-attr` | `'none'`                                         | **Proibido** qualquer `onclick=`, `onchange=` em atributo HTML        |
+| `script-src`      | `'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net` | Scripts externos só do jsDelivr; `unsafe-eval` necessário para Monaco |
+| `worker-src`      | `blob:`                                          | Necessário para Monaco Editor funcionar                               |
 
 **Padrão obrigatório para interações JS:**
 
@@ -612,8 +630,8 @@ O app usa Content Security Policy restritivo. Regras críticas para desenvolvedo
 
 ```javascript
 // src/views/layouts/footer.ejs — adicionar ao event delegation existente
-document.body.addEventListener('click', function(e) {
-  var btn = e.target.closest('.minha-acao');
+document.body.addEventListener("click", function (e) {
+  var btn = e.target.closest(".minha-acao");
   if (!btn) return;
   var id = btn.dataset.id;
   // lógica aqui
@@ -653,10 +671,10 @@ npx prisma migrate dev --name add-notificacoes
 Crie `src/validators/notificacao.schema.ts`:
 
 ```typescript
-import { z } from 'zod';
+import { z } from "zod";
 
 export const notificacaoSchema = z.object({
-  mensagem: z.string().min(1, 'Mensagem obrigatória').max(500),
+  mensagem: z.string().min(1, "Mensagem obrigatória").max(500),
 });
 
 export type NotificacaoInput = z.infer<typeof notificacaoSchema>;
@@ -671,14 +689,17 @@ export function parseFormNotificacao(body: Record<string, unknown>) {
 Crie `src/services/notificacao.service.ts`:
 
 ```typescript
-import type { PrismaClient } from '@prisma/client';
-import type { NotificacaoInput } from '../validators/notificacao.schema.js';
+import type { PrismaClient } from "@prisma/client";
+import type { NotificacaoInput } from "../validators/notificacao.schema.js";
 
 export function listNotificacoes(prisma: PrismaClient) {
-  return prisma.notificacao.findMany({ orderBy: { createdAt: 'desc' } });
+  return prisma.notificacao.findMany({ orderBy: { createdAt: "desc" } });
 }
 
-export function createNotificacao(prisma: PrismaClient, data: NotificacaoInput) {
+export function createNotificacao(
+  prisma: PrismaClient,
+  data: NotificacaoInput,
+) {
   return prisma.notificacao.create({ data });
 }
 
@@ -692,42 +713,46 @@ export function deleteNotificacao(prisma: PrismaClient, id: string) {
 Crie `src/routes/notificacoes.ts`:
 
 ```typescript
-import type { FastifyPluginAsync } from 'fastify';
-import { listNotificacoes, createNotificacao, deleteNotificacao } from '../services/notificacao.service.js';
-import { parseFormNotificacao } from '../validators/notificacao.schema.js';
+import type { FastifyPluginAsync } from "fastify";
+import {
+  listNotificacoes,
+  createNotificacao,
+  deleteNotificacao,
+} from "../services/notificacao.service.js";
+import { parseFormNotificacao } from "../validators/notificacao.schema.js";
 
 export const notificacaoRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook('preHandler', app.requireAuth);
+  app.addHook("preHandler", app.requireAuth);
 
-  app.get('/', async (_req, reply) => {
+  app.get("/", async (_req, reply) => {
     const notificacoes = await listNotificacoes(app.prisma);
-    return reply.view('pages/notificacoes.ejs', {
+    return reply.view("pages/notificacoes.ejs", {
       notificacoes,
       isAuthenticated: true,
-      currentPage: 'notificacoes',
+      currentPage: "notificacoes",
     });
   });
 
-  app.post('/', async (req, reply) => {
+  app.post("/", async (req, reply) => {
     const parsed = parseFormNotificacao(req.body as Record<string, unknown>);
     if (!parsed.success) {
       const notificacoes = await listNotificacoes(app.prisma);
-      return reply.view('pages/notificacoes.ejs', {
+      return reply.view("pages/notificacoes.ejs", {
         notificacoes,
         errors: parsed.error.issues,
         isAuthenticated: true,
-        currentPage: 'notificacoes',
+        currentPage: "notificacoes",
       });
     }
     await createNotificacao(app.prisma, parsed.data);
-    return reply.redirect('/notificacoes');
+    return reply.redirect("/notificacoes");
   });
 
   // HTMX delete — retorna string vazia para remover o elemento
-  app.delete('/:id', async (req, reply) => {
+  app.delete("/:id", async (req, reply) => {
     const { id } = req.params as { id: string };
     await deleteNotificacao(app.prisma, id);
-    return reply.send('');
+    return reply.send("");
   });
 };
 ```
@@ -736,10 +761,10 @@ export const notificacaoRoutes: FastifyPluginAsync = async (app) => {
 
 ```typescript
 // src/app.ts
-import { notificacaoRoutes } from './routes/notificacoes.js';
+import { notificacaoRoutes } from "./routes/notificacoes.js";
 
 // dentro de buildApp():
-await app.register(notificacaoRoutes, { prefix: '/notificacoes' });
+await app.register(notificacaoRoutes, { prefix: "/notificacoes" });
 ```
 
 ### Passo 6 — Views
@@ -747,19 +772,15 @@ await app.register(notificacaoRoutes, { prefix: '/notificacoes' });
 `src/views/pages/notificacoes.ejs`:
 
 ```html
-<%- include('../layouts/header', {
-  title: 'Notificações',
-  isAuthenticated: true,
-  currentPage: 'notificacoes'
-}) %>
+<%- include('../layouts/header', { title: 'Notificações', isAuthenticated: true,
+currentPage: 'notificacoes' }) %>
 
 <div class="max-w-3xl mx-auto space-y-4">
   <h2 class="text-2xl font-bold">Notificações</h2>
 
   <div id="notificacoes-list">
-    <% notificacoes.forEach(function(n) { %>
-      <%- include('../partials/notificacao-card', { n }) %>
-    <% }) %>
+    <% notificacoes.forEach(function(n) { %> <%-
+    include('../partials/notificacao-card', { n }) %> <% }) %>
   </div>
 </div>
 
@@ -824,6 +845,7 @@ chmod +x deploy.sh
 ```
 
 O `deploy.sh`:
+
 1. `pm2 delete app` — remove processo antigo
 2. `npm ci` — instala dependências limpas
 3. `npx prisma generate && npx prisma migrate deploy` — aplica migrations
