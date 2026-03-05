@@ -19,21 +19,21 @@ export async function sendDiscordWebhook(
   data: WebhookData,
 ): Promise<WebhookResult> {
   const embed = {
-    title: `🍕 Fatia Rápida — ${data.nome}`,
+    title: `Fatia Rápida — ${data.nome}`,
     description: data.descricao || "Tarefa executada automaticamente",
     color: 0xff6b6b, // vermelho suave
     fields: [
       ...(data.payload
         ? [
             {
-              name: "📦 Payload",
+              name: "Payload",
               value: `\`\`\`${data.payload}\`\`\``,
               inline: false,
             },
           ]
         : []),
       {
-        name: "⏰ Executado em",
+        name: "Executado em",
         value: new Date().toLocaleString("pt-BR", {
           timeZone: "America/Sao_Paulo",
         }),
@@ -41,7 +41,7 @@ export async function sendDiscordWebhook(
       },
     ],
     footer: {
-      text: "Fatia Rápida v2 — Raspberry Pi",
+      text: "Fatia Rápida Automation",
     },
     timestamp: new Date().toISOString(),
   };

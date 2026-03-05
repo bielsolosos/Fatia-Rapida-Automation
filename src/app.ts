@@ -11,6 +11,7 @@ import { config } from "./config.js";
 import { authPlugin } from "./plugins/auth.js";
 import { prismaPlugin } from "./plugins/prisma.js";
 import { schedulerPlugin } from "./plugins/scheduler.js";
+import { aboutRoutes } from "./routes/about.js";
 import { authRoutes } from "./routes/auth.js";
 import { dashboardRoutes } from "./routes/dashboard.js";
 import { execucaoRoutes } from "./routes/execucoes.js";
@@ -87,6 +88,7 @@ export async function buildApp() {
   await app.register(tarefaRoutes, { prefix: "/tarefas" });
   await app.register(execucaoRoutes, { prefix: "/execucoes" });
   await app.register(scriptRoutes, { prefix: "/scripts" });
+  await app.register(aboutRoutes);
 
   // ── Scheduler (must be registered after prisma) ──
   if (config.enableScheduler) {
