@@ -7,7 +7,6 @@
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Zod](https://img.shields.io/badge/Zod-v3-0e8a16?style=for-the-badge)](https://zod.dev)
-[![Axios](https://img.shields.io/badge/Axios-HTTP%20Client-5a29e4?style=for-the-badge&logo=axios&logoColor=white)](https://axios-http.com)
 [![SQLite](https://img.shields.io/badge/SQLite-DB-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
