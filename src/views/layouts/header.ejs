@@ -1,5 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="corporate">
+<script>
+  // Pre-render script to prevent theme flashing and detect system preference
+  (function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'business' : 'corporate';
+      document.documentElement.setAttribute('data-theme', systemTheme);
+    }
+  })();
+</script>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

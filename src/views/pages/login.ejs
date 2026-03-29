@@ -1,5 +1,17 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="corporate">
+<html lang="pt-BR">
+<script>
+  // Pre-render script to prevent theme flashing and detect system preference
+  (function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'business' : 'corporate';
+      document.documentElement.setAttribute('data-theme', systemTheme);
+    }
+  })();
+</script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +21,13 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body class="min-h-screen bg-base-100 flex items-center justify-center p-4">
+  <!-- Theme Toggle Floating Button -->
+  <div class="fixed top-4 right-4">
+    <button id="theme-toggle" class="btn btn-ghost btn-circle btn-sm shadow-sm bg-base-200/50 backdrop-blur-sm" title="Alternar tema">
+      <i data-lucide="sun" id="theme-sun" class="w-4 h-4 hidden"></i>
+      <i data-lucide="moon" id="theme-moon" class="w-4 h-4 hidden"></i>
+    </button>
+  </div>
   <div class="w-full max-w-sm">
     <div class="card bg-base-200 shadow-2xl">
       <div class="card-body gap-4">
@@ -75,6 +94,41 @@
       </div>
     </div>
   </div>
-  <script>document.addEventListener('DOMContentLoaded', function() { if (typeof lucide !== 'undefined') lucide.createIcons(); });</script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() { 
+      if (typeof lucide !== 'undefined') lucide.createIcons(); 
+
+      // Theme toggle logic
+      (function() {
+        const sun = document.getElementById('theme-sun');
+        const moon = document.getElementById('theme-moon');
+        const toggle = document.getElementById('theme-toggle');
+
+        function updateIcons(theme) {
+          if (theme === 'business') {
+            sun.classList.remove('hidden');
+            moon.classList.add('hidden');
+          } else {
+            sun.classList.add('hidden');
+            moon.classList.remove('hidden');
+          }
+        }
+
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'corporate';
+        updateIcons(currentTheme);
+
+        toggle.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'business';
+          const newTheme = isDark ? 'corporate' : 'business';
+
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateIcons(newTheme);
+
+          if (window.lucide) lucide.createIcons();
+        });
+      })();
+    });
+  </script>
 </body>
 </html>

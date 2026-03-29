@@ -40,6 +40,12 @@
   </div>
 
   <div class="navbar-end gap-2">
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="btn btn-ghost btn-circle btn-sm" title="Alternar tema">
+      <i data-lucide="sun" id="theme-sun" class="w-4 h-4 hidden"></i>
+      <i data-lucide="moon" id="theme-moon" class="w-4 h-4 hidden"></i>
+    </button>
+
     <a href="/about" class="btn btn-ghost btn-sm" title="Sobre o projeto">
       <i data-lucide="info" class="w-4 h-4"></i>
     </a>
@@ -48,6 +54,40 @@
         <i data-lucide="log-out" class="w-4 h-4"></i> Sair
       </button>
     </form>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const sun = document.getElementById('theme-sun');
+        const moon = document.getElementById('theme-moon');
+        const toggle = document.getElementById('theme-toggle');
+
+        function updateIcons(theme) {
+          if (theme === 'business') {
+            // Se o tema é escuro, mostra o sol para mudar para o claro
+            sun.classList.remove('hidden');
+            moon.classList.add('hidden');
+          } else {
+            // Se o tema é claro, mostra a lua para mudar para o escuro
+            sun.classList.add('hidden');
+            moon.classList.remove('hidden');
+          }
+          if (window.lucide) lucide.createIcons();
+        }
+
+        // Pega o tema real aplicado no momento (seja do localStorage ou do sistema)
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'corporate';
+        updateIcons(currentTheme);
+
+        toggle.addEventListener('click', () => {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'business';
+          const newTheme = isDark ? 'corporate' : 'business';
+
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateIcons(newTheme);
+        });
+      });
+    </script>
     <!-- Mobile dropdown -->
     <div class="dropdown dropdown-end lg:hidden">
       <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
