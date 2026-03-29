@@ -53,7 +53,6 @@ export async function executeTask(
             cmd = "python";
             args = [filePath];
           } else {
-            // Windows: usa bash (Git Bash) para scripts shell
             cmd = "bash";
             args = ["-c", `"${filePath}" 2>&1`];
           }
@@ -65,7 +64,6 @@ export async function executeTask(
             cmd = "python3";
             args = [filePath];
           } else {
-            // Linux/Raspberry Pi: bash com merge de stderr+stdout
             cmd = "bash";
             args = ["-c", `"${filePath}" 2>&1`];
           }
@@ -73,12 +71,13 @@ export async function executeTask(
 
         const result = await runCommand(cmd, args, { cwd: config.scriptsDir });
 
+        stdout = result.stdout;
         stderr = result.stderr;
         saidaTipo = "script";
 
         if (result.exitCode !== 0)
           throw new Error(
-            `Script saiu com código ${result.exitCode}\n${stderr}`,
+            `Script saiu com código ${result.exitCode}`,
           );
       }
     }
@@ -104,24 +103,33 @@ export async function executeTask(
 
     // ── Envia resultado para Discord (se webhook configurado) ──
     if (tarefa.webhookUrl) {
+      const discordPayload = [
+        `**Tarefa:** ${tarefa.nome}`,
+        tarefa.descricao ? `*${tarefa.descricao}*` : "",
+        "",
+        "**Saída (stdout):**",
+        `\`\`\`\n${stdout || "(sem saída)"}\n\`\`\``,
+      ];
+
+      if (stderr) {
+        discordPayload.push("**Erro (stderr):**");
+        discordPayload.push(`\`\`\`\n${stderr}\n\`\`\``);
+      }
+
       await sendDiscordWebhook(tarefa.webhookUrl, {
         nome: tarefa.nome,
         descricao: tarefa.descricao,
-        payload:
-          saidaTipo === "shell" || saidaTipo === "script"
-            ? `**stdout:**\n${stdout || "(sem saída)"}\n\n\n\`\`\`${stderr ? `\n**stderr:**\n\n\n\n${stderr}\n` : ""}`
-            : tarefa.comandoOuPayload,
+        payload: discordPayload.join("\n"),
       });
     }
 
     const duracao = Date.now() - start;
-    const saida = JSON.stringify(
-      saidaTipo === "shell"
-        ? { type: "shell", comando: tarefa.comandoOuPayload, stdout, stderr }
-        : saidaTipo === "script"
-          ? { type: "script", stdout, stderr }
-          : { type: "noop", message: "Tarefa sem ação configurada" },
-    );
+    const saida = JSON.stringify({
+      type: saidaTipo,
+      stdout,
+      stderr,
+      comando: saidaTipo === "shell" ? tarefa.comandoOuPayload : undefined,
+    });
 
     console.log(`[Scheduler] ✓ "${tarefa.nome}" concluída em ${duracao}ms`);
 
@@ -136,11 +144,16 @@ export async function executeTask(
       `[Scheduler] ✗ Tarefa "${tarefa.nome}" falhou: ${errorMessage}`,
     );
 
+    // Salva o erro mas também tenta manter stdout/stderr se existirem
     await prisma.execucao.update({
       where: { id: execucao.id },
       data: {
         status: "FALHA",
-        saida: JSON.stringify({ error: errorMessage }),
+        saida: JSON.stringify({
+          error: errorMessage,
+          stdout: stdout || "",
+          stderr: stderr || "",
+        }),
         duracao,
       },
     });

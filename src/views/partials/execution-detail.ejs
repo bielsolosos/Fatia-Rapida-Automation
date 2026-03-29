@@ -46,21 +46,21 @@
         </div>
       <% } %>
 
-      <% if (parsed.stdout) { %>
+      <% if (typeof parsed.stdout !== 'undefined') { %>
         <div>
           <h4 class="font-semibold text-sm mb-1">Saída Padrão (stdout)</h4>
-          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap font-mono"><%= parsed.stdout %></pre>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap font-mono"><%= parsed.stdout || '(sem saída)' %></pre>
         </div>
       <% } %>
 
-      <% if (parsed.stderr) { %>
+      <% if (typeof parsed.stderr !== 'undefined' && parsed.stderr) { %>
         <div>
           <h4 class="font-semibold text-sm mb-1 text-error/80">Saída de Erro (stderr)</h4>
           <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 whitespace-pre-wrap text-error/70 font-mono"><%= parsed.stderr %></pre>
         </div>
       <% } %>
 
-      <% if (!parsed.stdout && !parsed.stderr && !parsed.error) { %>
+      <% if (typeof parsed.stdout === 'undefined' && typeof parsed.stderr === 'undefined' && !parsed.error) { %>
         <div>
           <h4 class="font-semibold text-sm mb-1">Dados da Execução</h4>
           <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 font-mono"><%= JSON.stringify(parsed, null, 2) %></pre>

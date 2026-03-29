@@ -152,20 +152,32 @@
     return 'shell';
   }
 
+  function getMonacoTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'business' ? 'vs-dark' : 'vs';
+  }
+
   require(['vs/editor/editor.main'], function() {
     var lang = tipoToLang(window.__scriptTipo__);
 
     monacoEditor = monaco.editor.create(document.getElementById('monaco-editor'), {
       value: window.__scriptConteudo__,
       language: lang,
-      theme: document.documentElement.getAttribute('data-theme') === 'fatia' ? 'vs-light' : 'vs-light',
+      theme: getMonacoTheme(),
       fontSize: 14,
       minimap: { enabled: false },
       lineNumbers: 'on',
       wordWrap: 'on',
       automaticLayout: true,
       scrollBeyondLastLine: false,
+      tabSize: 2,
+      insertSpaces: true,
     });
+
+    // Observer para mudar o tema do Monaco em tempo real quando o toggle da navbar for clicado
+    const themeObserver = new MutationObserver(function() {
+      monaco.editor.setTheme(getMonacoTheme());
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     // Atualiza hidden input com conteúdo do editor no submit
     document.getElementById('script-form').addEventListener('submit', function() {
