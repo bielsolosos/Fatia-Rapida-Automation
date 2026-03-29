@@ -30,24 +30,40 @@
   </dl>
 
   <% if (exec.saida) { %>
-    <% const parsed = JSON.parse(exec.saida); %>
+    <% 
+      let parsed = {};
+      try {
+        parsed = JSON.parse(exec.saida);
+      } catch (e) {
+        parsed = { error: 'Erro ao processar saída: ' + e.message, raw: exec.saida };
+      }
+    %>
     <div class="mt-4 space-y-3">
+      <% if (parsed.error) { %>
+        <div>
+          <h4 class="font-semibold text-sm mb-1 text-error">Erro de Execução</h4>
+          <pre class="bg-error/5 border border-error/20 rounded p-3 text-xs overflow-x-auto max-h-48 whitespace-pre-wrap text-error font-mono"><%= parsed.error %></pre>
+        </div>
+      <% } %>
+
       <% if (parsed.stdout) { %>
         <div>
-          <h4 class="font-semibold text-sm mb-1">stdout</h4>
-          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 whitespace-pre-wrap"><%= parsed.stdout %></pre>
+          <h4 class="font-semibold text-sm mb-1">Saída Padrão (stdout)</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-64 whitespace-pre-wrap font-mono"><%= parsed.stdout %></pre>
         </div>
       <% } %>
+
       <% if (parsed.stderr) { %>
         <div>
-          <h4 class="font-semibold text-sm mb-1 text-error">stderr</h4>
-          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-32 whitespace-pre-wrap text-error"><%= parsed.stderr %></pre>
+          <h4 class="font-semibold text-sm mb-1 text-error/80">Saída de Erro (stderr)</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 whitespace-pre-wrap text-error/70 font-mono"><%= parsed.stderr %></pre>
         </div>
       <% } %>
-      <% if (!parsed.stdout && !parsed.stderr) { %>
+
+      <% if (!parsed.stdout && !parsed.stderr && !parsed.error) { %>
         <div>
-          <h4 class="font-semibold text-sm mb-1">Saída</h4>
-          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48"><%= JSON.stringify(parsed, null, 2) %></pre>
+          <h4 class="font-semibold text-sm mb-1">Dados da Execução</h4>
+          <pre class="bg-base-300 rounded p-3 text-xs overflow-x-auto max-h-48 font-mono"><%= JSON.stringify(parsed, null, 2) %></pre>
         </div>
       <% } %>
     </div>
