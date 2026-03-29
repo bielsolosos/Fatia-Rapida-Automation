@@ -10,8 +10,9 @@
   },
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && npm run build:copy",
-    "build:copy": "copyfiles -u 1 \"src/views/**/*\" dist && copyfiles -u 1 \"public/**/*\" dist/../",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc && npm run build:copy",
+    "build:copy": "copyfiles -u 1 \"src/views/**/*\" dist && copyfiles -u 0 \"public/**/*\" dist",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",

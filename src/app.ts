@@ -62,7 +62,7 @@ export async function buildApp() {
 
   // ── Static files ──
   await app.register(fastifyStatic, {
-    root: path.join(__dirname, "..", "public"),
+    root: path.join(__dirname, "public"),
     prefix: "/public/",
   });
 
