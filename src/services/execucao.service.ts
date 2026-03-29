@@ -26,11 +26,11 @@ export async function executeTask(
     data: { tarefaId: tarefa.id, status: "EM_ANDAMENTO" },
   });
 
-  try {
-    let stdout = "";
-    let stderr = "";
-    let saidaTipo: "shell" | "script" | "noop" = "noop";
+  let stdout = "";
+  let stderr = "";
+  let saidaTipo: "shell" | "script" | "noop" = "noop";
 
+  try {
     // ── Se a tarefa tem script vinculado, executa o arquivo ──
     if (tarefa.scriptId) {
       const script = await prisma.script.findUnique({
