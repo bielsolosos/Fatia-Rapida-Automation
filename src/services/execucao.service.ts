@@ -126,8 +126,8 @@ export async function executeTask(
     const duracao = Date.now() - start;
     const saida = JSON.stringify({
       type: saidaTipo,
-      stdout,
-      stderr,
+      stdout: stdout || "",
+      stderr: stderr || "",
       comando: saidaTipo === "shell" ? tarefa.comandoOuPayload : undefined,
     });
 
@@ -150,6 +150,7 @@ export async function executeTask(
       data: {
         status: "FALHA",
         saida: JSON.stringify({
+          type: saidaTipo,
           error: errorMessage,
           stdout: stdout || "",
           stderr: stderr || "",
