@@ -1,21 +1,59 @@
-  </main>
+      </main>
 
-  <footer class="footer p-4 bg-base-200 text-base-content flex items-center justify-between">
-    <aside>
-      <p class="text-xs opacity-50 flex items-center gap-1">
-        <i data-lucide="pizza" class="w-3 h-3"></i> Fatia Rápida Automation
-      </p>
-    </aside>
-    <a href="/about" class="btn btn-ghost btn-xs gap-1 opacity-50 hover:opacity-100 transition-opacity">
-      <i data-lucide="info" class="w-3 h-3"></i>
-      <span class="text-xs">Sobre</span>
-    </a>
-  </footer>
+      <footer class="footer p-4 bg-base-200 text-base-content flex items-center justify-between border-t border-base-300">
+        <aside>
+          <p class="text-xs opacity-50 flex items-center gap-1">
+            <i data-lucide="pizza" class="w-3 h-3"></i> Fatia Rápida Automation
+          </p>
+        </aside>
+        <a href="/about" class="btn btn-ghost btn-xs gap-1 opacity-50 hover:opacity-100 transition-opacity">
+          <i data-lucide="info" class="w-3 h-3"></i>
+          <span class="text-xs">Sobre</span>
+        </a>
+      </footer>
+    </div> <!-- end drawer-content -->
+
+    <div class="drawer-side z-40">
+      <label for="main-drawer" class="drawer-overlay" aria-label="fechar menu"></label>
+      <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+        <%- include('../partials/navbar') %>
+      <% } %>
+    </div>
+  </div> <!-- end drawer -->
 
   <script>
-    // Initialise Lucide icons (initial load + after every HTMX swap)
+    // Initialise Lucide icons
     function initIcons() {
       if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Toggle Drawer logic (Mobile vs Desktop)
+    function initDrawerToggle() {
+      const btn = document.getElementById('toggle-drawer');
+      const checkbox = document.getElementById('main-drawer');
+      const container = document.getElementById('drawer-container');
+      
+      if (!btn || !checkbox || !container) return;
+      
+      // Evita adicionar múltiplos listeners se o HTMX carregar a página de novo
+      if (btn.dataset.bound === 'true') return;
+      btn.dataset.bound = 'true';
+
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (window.innerWidth >= 1024) {
+          // No DESKTOP, alternamos a classe lg:drawer-open que o DaisyUI usa para o estado fixo
+          const isOpen = container.classList.toggle('lg:drawer-open');
+          localStorage.setItem('drawer-pinned', isOpen);
+          // Força o checkbox a ficar falso para não sobrepor nada
+          checkbox.checked = false;
+        } else {
+          // No MOBILE, o comportamento padrão do DaisyUI é via checkbox
+          checkbox.checked = !checkbox.checked;
+        }
+      });
     }
 
     // Dia-da-semana chip toggle
@@ -23,15 +61,10 @@
       var scope = root || document;
       scope.querySelectorAll('.dia-check').forEach(function(label) {
         var cb = label.querySelector('input[type="checkbox"]');
-        if (!cb) return;
-        // Set initial visual state
-        if (cb.checked) label.classList.add('selected');
-        else label.classList.remove('selected');
-        // Avoid double-binding
-        if (label.dataset.daysInit) return;
+        if (!cb || label.dataset.daysInit) return;
         label.dataset.daysInit = '1';
+        if (cb.checked) label.classList.add('selected');
         label.addEventListener('click', function() {
-          // Timeout 0 so the browser toggles cb.checked before we read it
           setTimeout(function() {
             if (cb.checked) label.classList.add('selected');
             else label.classList.remove('selected');
@@ -43,6 +76,7 @@
     function initAll(root) {
       initIcons();
       initDaysToggle(root);
+      initDrawerToggle();
     }
 
     document.addEventListener('DOMContentLoaded', function() { initAll(); });
@@ -57,31 +91,19 @@
       });
     });
 
-    // Horários: event delegation — sem onclick inline (bloqueado por CSP)
+    // Horários: event delegation
     document.body.addEventListener('click', function(e) {
-      // Botão "+ Horário"
       var addBtn = e.target.closest('.add-horario');
       if (addBtn) {
         var container = addBtn.closest('.form-control').querySelector('.horarios-list');
         var div = document.createElement('div');
         div.className = 'flex items-center gap-2 mt-2 horario-input-group';
-        var input = document.createElement('input');
-        input.type = 'time';
-        input.name = 'horarios';
-        input.required = true;
-        input.className = 'input input-bordered input-sm w-36';
-        var removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn btn-square btn-xs btn-error btn-outline remove-horario';
-        removeBtn.innerHTML = '<i data-lucide="x" class="w-3 h-3"></i>';
-        div.appendChild(input);
-        div.appendChild(removeBtn);
+        div.innerHTML = '<input type="time" name="horarios" required class="input input-bordered input-sm w-36">' +
+                        '<button type="button" class="btn btn-square btn-xs btn-error btn-outline remove-horario"><i data-lucide="x" class="w-3 h-3"></i></button>';
         container.appendChild(div);
         initAll(div);
         return;
       }
-
-      // Botão "×" remover horário
       var removeBtn = e.target.closest('.remove-horario');
       if (removeBtn) {
         var group = removeBtn.closest('.horario-input-group');
@@ -90,27 +112,13 @@
       }
     });
 
-    // Script selector toggle em tarefa-form
-    (function() {
-      var scriptSelect = document.getElementById('scriptId');
-      var comandoSection = document.getElementById('comando-section');
-      if (!scriptSelect || !comandoSection) return;
-      function toggleComando() {
-        var hasScript = scriptSelect.value !== '';
-        comandoSection.style.opacity = hasScript ? '0.4' : '1';
-        comandoSection.querySelectorAll('textarea, input').forEach(function(el) {
-          el.disabled = hasScript;
-        });
-        var label = comandoSection.querySelector('.label-text');
-        if (label) {
-          label.textContent = hasScript
-            ? 'Comando / Payload (ignorado — script vinculado)'
-            : 'Comando / Payload';
-        }
+    // Close drawer after HTMX navigation on mobile
+    document.body.addEventListener('htmx:beforeSwap', function() {
+      const drawerToggle = document.getElementById('main-drawer');
+      if (drawerToggle && drawerToggle.checked && window.innerWidth < 1024) {
+        drawerToggle.checked = false;
       }
-      toggleComando();
-      scriptSelect.addEventListener('change', toggleComando);
-    })();
+    });
   </script>
 </body>
 </html>

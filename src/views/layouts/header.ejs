@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <script>
-  // Pre-render script to prevent theme flashing and detect system preference
+  // Pre-render script to prevent theme flashing
   (function() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -26,9 +26,49 @@
   <link rel="stylesheet" href="/public/css/style.css">
 </head>
 <body class="min-h-screen bg-base-100 flex flex-col">
-  <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-    <%- include('../partials/navbar') %>
-  <% } %>
+  <% 
+    // Lógica para decidir se o drawer começa aberto no desktop
+    let drawerClass = "drawer";
+    if (typeof isAuthenticated !== 'undefined' && isAuthenticated) {
+      // No servidor não temos localStorage, então por padrão deixamos aberto ou passamos via cookie se quiser algo avançado
+      // Por simplicidade, vamos injetar um script logo abaixo para ajustar via JS
+      drawerClass += " lg:drawer-open"; 
+    }
+  %>
+  <div id="drawer-container" class="<%= drawerClass %>">
+    <input id="main-drawer" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content flex flex-col min-h-screen">
+      
+      <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+        <!-- Global Header -->
+        <header class="navbar bg-base-100/80 backdrop-blur border-b border-base-300 sticky top-0 z-30 px-4">
+          <div class="flex-none">
+            <!-- Usamos type="button" para não submeter formulários por acidente -->
+            <button type="button" id="toggle-drawer" class="btn btn-square btn-ghost">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+          </div>
+          <div class="flex-1 ml-2">
+            <a href="/" class="flex items-center gap-2 text-xl font-bold lg:hidden">
+              <i data-lucide="pizza" class="w-6 h-6 text-primary"></i> Fatia Rápida
+            </a>
+            <span class="hidden lg:inline text-sm font-medium opacity-50 uppercase tracking-wider">
+              <%= typeof title !== 'undefined' ? title : 'Dashboard' %>
+            </span>
+          </div>
+        </header>
 
-  <main class="container mx-auto px-4 py-6 max-w-7xl flex-1">
-    <div id="toast-container" class="toast toast-top toast-end z-50 pointer-events-none"></div>
+        <script>
+          // Ajuste imediato do estado do drawer baseado no localStorage (evita o "pulo" visual)
+          (function() {
+            const container = document.getElementById('drawer-container');
+            const pinned = localStorage.getItem('drawer-pinned');
+            if (pinned === 'false') {
+              container.classList.remove('lg:drawer-open');
+            }
+          })();
+        </script>
+      <% } %>
+
+      <main class="container mx-auto px-4 py-6 max-w-7xl flex-1">
+        <div id="toast-container" class="toast toast-top toast-end z-50 pointer-events-none"></div>
