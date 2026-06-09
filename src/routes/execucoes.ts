@@ -38,10 +38,6 @@ export const execucaoRoutes: FastifyPluginAsync = async (app) => {
 
     // If HTMX partial request, return just the table rows
     if (isPartial || request.headers["hx-request"] === "true") {
-      let html = "";
-      for (const exec of execucoes) {
-        html += await reply.view("partials/execution-row.ejs", { exec });
-      }
       // @fastify/view returns the reply, we need raw rendering
       // Actually let's build it inline for partials
       const rows = execucoes

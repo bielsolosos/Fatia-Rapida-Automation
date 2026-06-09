@@ -10,4 +10,3 @@ export const aboutRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 };
-1;
