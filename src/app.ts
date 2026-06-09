@@ -5,6 +5,7 @@ import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import ejs from "ejs";
 import Fastify, { type FastifyError } from "fastify";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.js";
@@ -61,8 +62,13 @@ export async function buildApp() {
   await app.register(fastifyCookie);
 
   // ── Static files ──
+  let publicDir = path.join(__dirname, "public");
+  if (!fs.existsSync(publicDir)) {
+    publicDir = path.join(__dirname, "..", "public");
+  }
+
   await app.register(fastifyStatic, {
-    root: path.join(__dirname, "public"),
+    root: publicDir,
     prefix: "/public/",
   });
 
@@ -125,7 +131,7 @@ export async function buildApp() {
       return reply
         .status(404)
         .send(
-          '<div class="toast error" role="alert">Página não encontrada</div>',
+          "<div class=\"toast error\" role=\"alert\">Página não encontrada</div>",
         );
     }
 

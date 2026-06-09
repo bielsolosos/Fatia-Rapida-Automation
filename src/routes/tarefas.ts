@@ -145,7 +145,7 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
       if (!tarefa) {
         return reply
           .status(404)
-          .send('<div class="toast error">Tarefa não encontrada</div>');
+          .send("<div class=\"toast error\">Tarefa não encontrada</div>");
       }
 
       // Reschedule or unschedule

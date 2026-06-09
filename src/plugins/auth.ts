@@ -24,7 +24,6 @@ function generateSessionId(): string {
 }
 
 function signCookie(sid: string, secret: string): string {
-  const encoder = new TextEncoder();
   // Simple HMAC-like signature using the secret
   let hash = 0;
   const combined = sid + secret;
@@ -52,32 +51,29 @@ export const authPlugin = fp(async (app: FastifyInstance) => {
   app.decorateRequest("isAuthenticated", false);
 
   // ── Load session on every request ──
-  app.addHook(
-    "onRequest",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const cookieValue = request.cookies[COOKIE_NAME];
-      if (!cookieValue) return;
+  app.addHook("onRequest", async (request: FastifyRequest) => {
+    const cookieValue = request.cookies[COOKIE_NAME];
+    if (!cookieValue) return;
 
-      const sid = verifySignedCookie(cookieValue, config.sessionSecret);
-      if (!sid) return;
+    const sid = verifySignedCookie(cookieValue, config.sessionSecret);
+    if (!sid) return;
 
-      try {
-        const session = await app.prisma.session.findUnique({ where: { sid } });
-        if (!session) return;
+    try {
+      const session = await app.prisma.session.findUnique({ where: { sid } });
+      if (!session) return;
 
-        if (new Date() > session.expiresAt) {
-          // Session expired, clean up
-          await app.prisma.session.delete({ where: { sid } }).catch(() => {});
-          return;
-        }
-
-        request.session = JSON.parse(session.data) as SessionData;
-        request.isAuthenticated = true;
-      } catch {
-        // Invalid session, ignore
+      if (new Date() > session.expiresAt) {
+        // Session expired, clean up
+        await app.prisma.session.delete({ where: { sid } }).catch(() => {});
+        return;
       }
-    },
-  );
+
+      request.session = JSON.parse(session.data) as SessionData;
+      request.isAuthenticated = true;
+    } catch {
+      // Invalid session, ignore
+    }
+  });
 
   // ── Auth methods on app ──
   app.decorate(
