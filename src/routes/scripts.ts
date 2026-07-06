@@ -1,9 +1,9 @@
 import type { FastifyPluginAsync } from "fastify";
 import { config } from "../config.js";
+import { execucaoService } from "../domain/execucoes/service/execucao-service.js";
 import {
   createScript,
   deleteScript,
-  executeScriptManually,
   getScriptById,
   listScripts,
   updateScript,
@@ -133,8 +133,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const start = Date.now();
       try {
-        const result = await executeScriptManually(
-          app.prisma,
+        const result = await execucaoService.runScriptManually(
           request.params.id,
         );
         return reply.view("partials/execution-output.ejs", {

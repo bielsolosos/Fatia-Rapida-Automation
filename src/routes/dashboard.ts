@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { getDashboardStats } from "../services/tarefa.service.js";
+import { getDashboardStats } from "../domain/dashboard/service/dashboard-service.js";
 
 export const dashboardRoutes: FastifyPluginAsync = async (app) => {
   // All dashboard routes require auth

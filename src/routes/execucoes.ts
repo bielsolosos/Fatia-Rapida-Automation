@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { ExecucaoStatus } from "../core/enums/execucao-status.js";
+import { toExecucaoRowView } from "../api/models/execucao/execucao-view.js";
 
 export const execucaoRoutes: FastifyPluginAsync = async (app) => {
   // All routes require auth
@@ -36,49 +36,15 @@ export const execucaoRoutes: FastifyPluginAsync = async (app) => {
     ]);
 
     const totalPages = Math.ceil(total / limit);
+    const views = execucoes.map(toExecucaoRowView);
 
-    // If HTMX partial request, return just the table rows
+    // HTMX partial: return just the table rows
     if (isPartial || request.headers["hx-request"] === "true") {
-      // @fastify/view returns the reply, we need raw rendering
-      // Actually let's build it inline for partials
-      const rows = execucoes
-        .map((exec) => {
-          const date = new Date(exec.executadoEm).toLocaleString("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-          });
-          const badgeClass =
-            exec.status === ExecucaoStatus.SUCESSO
-              ? "badge-success"
-              : exec.status === ExecucaoStatus.FALHA
-                ? "badge-danger"
-                : "badge-warning";
-          const tarefaNome = exec.tarefa
-            ? exec.tarefa.nome
-            : (exec as any).script
-              ? `Script: ${(exec as any).script.nome}`
-              : exec.tarefaId
-                ? exec.tarefaId.substring(0, 8) + "..."
-                : "(avulso)";
-          const duracao = exec.duracao ? exec.duracao + "ms" : "—";
-          const viewBtn = exec.saida
-            ? `<button class="outline btn-sm" hx-get="/execucoes/${exec.id}/detalhes" hx-target="#exec-detail-modal" hx-swap="innerHTML">👁️ Ver</button>`
-            : "—";
-
-          return `<tr id="exec-${exec.id}">
-          <td>${date}</td>
-          <td><span class="badge ${badgeClass}">${exec.status}</span></td>
-          <td>${tarefaNome}</td>
-          <td>${duracao}</td>
-          <td>${viewBtn}</td>
-        </tr>`;
-        })
-        .join("");
-
-      return reply.type("text/html").send(rows);
+      return reply.view("partials/execution-rows.ejs", { views });
     }
 
     return reply.view("pages/execucoes.ejs", {
-      execucoes,
+      views,
       currentPage: page,
       totalPages,
       limit,
