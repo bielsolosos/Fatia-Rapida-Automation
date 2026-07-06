@@ -17,8 +17,8 @@ import { dashboardRoute } from "./api/routes/dashboard-route.js";
 import { execucaoRoute } from "./api/routes/execucao-route.js";
 import { scriptRoute } from "./api/routes/script-route.js";
 import { tarefaRoute } from "./api/routes/tarefa-route.js";
-import { authPlugin } from "./plugins/auth.js";
-import { prismaPlugin } from "./plugins/prisma.js";
+import { authPlugin } from "./infrastructure/fastify/auth-plugin.js";
+import { prismaPlugin } from "./infrastructure/fastify/prisma-plugin.js";
 import { schedulerPlugin } from "./infrastructure/fastify/scheduler-plugin.js";
 
 const __filename = fileURLToPath(import.meta.url);

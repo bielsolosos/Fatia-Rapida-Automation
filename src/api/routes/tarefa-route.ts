@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import {
   parseFormTarefa,
   tarefaCreateSchema,
-} from "../../validators/tarefa.schema.js";
+} from "../models/tarefa/form.js";
 
 export const tarefaRoute: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireAuth);

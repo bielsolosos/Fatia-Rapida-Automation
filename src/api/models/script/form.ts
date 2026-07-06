@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ScriptTipo } from "../core/enums/script-tipo.js";
+import { ScriptTipo } from "../../../core/enums/script-tipo.js";
 
 export type { ScriptTipo };
 

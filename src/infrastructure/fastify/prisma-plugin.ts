@@ -5,7 +5,7 @@ import {
   connectPrisma,
   disconnectPrisma,
   prisma,
-} from "../infrastructure/persistence/prisma.js";
+} from "../persistence/prisma.js";
 
 declare module "fastify" {
   interface FastifyInstance {

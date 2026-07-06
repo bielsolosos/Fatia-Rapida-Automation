@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { randomUUID } from "node:crypto";
 import { ScriptTipo } from "../../../core/enums/script-tipo.js";
 import type { ScriptStorage } from "../storage/script-storage.js";
-import type { ScriptCreateInput } from "../../../validators/script.schema.js";
+import type { ScriptCreateInput } from "../../../api/models/script/form.js";
 
 export class ScriptService {
   constructor(

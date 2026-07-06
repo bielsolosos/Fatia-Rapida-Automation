@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import type {
   TarefaCreateInput,
   TarefaUpdateInput,
-} from "../../../validators/tarefa.schema.js";
+} from "../../../api/models/tarefa/form.js";
 
 export class TarefaService {
   constructor(private readonly prisma: PrismaClient) {}

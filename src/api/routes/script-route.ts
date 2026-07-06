@@ -3,7 +3,7 @@ import { config } from "../../config.js";
 import {
   parseFormScript,
   scriptCreateSchema,
-} from "../../validators/script.schema.js";
+} from "../models/script/form.js";
 
 export const scriptRoute: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireAuth);

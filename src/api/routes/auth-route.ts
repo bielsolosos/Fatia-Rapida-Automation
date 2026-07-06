@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { loginSchema } from "../../validators/auth.schema.js";
+import { loginSchema } from "../models/auth/form.js";
 
 export const authRoute: FastifyPluginAsync = async (app) => {
   app.get("/login", async (request, reply) => {

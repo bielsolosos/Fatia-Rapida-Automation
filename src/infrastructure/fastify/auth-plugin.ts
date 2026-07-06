@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
-import { config } from "../config.js";
+import { config } from "../../config.js";
 
 // ── Session data shape ──
 interface SessionData {
