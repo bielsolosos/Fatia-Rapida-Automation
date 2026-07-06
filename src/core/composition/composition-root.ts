@@ -27,7 +27,7 @@ export function buildServices(logger: Logger): Services {
   const processRunner = new ProcessRunner({ defaultTimeoutMs: 60_000 });
   const scriptStorage = new ScriptStorage();
 
-  const scriptActionExecutor = new ScriptActionExecutor(processRunner);
+  const scriptActionExecutor = new ScriptActionExecutor(processRunner, scriptStorage);
   const shellActionExecutor = new ShellActionExecutor();
   const noopActionExecutor = new NoopActionExecutor();
   const actionFactory = new ActionExecutorFactory({

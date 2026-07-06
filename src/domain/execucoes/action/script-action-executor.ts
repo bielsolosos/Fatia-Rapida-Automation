@@ -3,16 +3,22 @@ import { config } from "../../../config.js";
 import { ActionTipo } from "../../../core/enums/action-tipo.js";
 import { ScriptTipo } from "../../../core/enums/script-tipo.js";
 import type { ProcessRunner } from "../runner/process-runner.js";
+import type { ScriptStorage } from "../../scripts/storage/script-storage.js";
 import type { ActionContext, ActionResult, ActionExecutor } from "./action-executor.js";
 
 export class ScriptActionExecutor implements ActionExecutor {
-  constructor(private readonly runner: ProcessRunner) {}
+  constructor(
+    private readonly runner: ProcessRunner,
+    private readonly storage: ScriptStorage,
+  ) {}
 
   async execute(ctx: ActionContext): Promise<ActionResult> {
     const { script } = ctx;
     if (!script) {
       return { stdout: "", stderr: "", exitCode: 0, tipo: ActionTipo.SCRIPT };
     }
+
+    await this.storage.ensure(script.arquivo, script.conteudo);
 
     const filePath = path.join(config.scriptsDir, script.arquivo);
     const { cmd, args } = this.buildCommand(script.tipo, filePath);

@@ -15,6 +15,15 @@ export class ScriptStorage {
     }
   }
 
+  async ensure(arquivo: string, conteudo: string): Promise<void> {
+    const filePath = path.join(config.scriptsDir, arquivo);
+    try {
+      await fs.access(filePath);
+    } catch {
+      await this.write(arquivo, conteudo);
+    }
+  }
+
   async remove(arquivo: string): Promise<void> {
     try {
       const filePath = path.join(config.scriptsDir, arquivo);
