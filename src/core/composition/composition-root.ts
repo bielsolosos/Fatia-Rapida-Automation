@@ -12,6 +12,7 @@ import { ExecucaoService } from "../../domain/execucoes/service/execucao-service
 import { ScriptStorage } from "../../domain/scripts/storage/script-storage.js";
 import { ScriptService } from "../../domain/scripts/service/script-service.js";
 import { TarefaService } from "../../domain/tarefas/service/tarefa-service.js";
+import { SchedulerManager } from "../../domain/tarefas/scheduling/scheduler-manager.js";
 import { DashboardService } from "../../domain/dashboard/service/dashboard-service.js";
 
 export interface Services {
@@ -19,6 +20,7 @@ export interface Services {
   script: ScriptService;
   execucao: ExecucaoService;
   dashboard: DashboardService;
+  scheduler: SchedulerManager;
 }
 
 export function buildServices(logger: Logger): Services {
@@ -49,6 +51,7 @@ export function buildServices(logger: Logger): Services {
   const tarefa = new TarefaService(prisma);
   const script = new ScriptService(prisma, scriptStorage);
   const dashboard = new DashboardService(prisma);
+  const scheduler = new SchedulerManager(prisma, logger, execucao);
 
-  return { tarefa, script, execucao, dashboard };
+  return { tarefa, script, execucao, dashboard, scheduler };
 }

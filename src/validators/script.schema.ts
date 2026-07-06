@@ -18,12 +18,12 @@ export const scriptCreateSchema = z.object({
 export type ScriptCreateInput = z.infer<typeof scriptCreateSchema>;
 export type ScriptUpdateInput = ScriptCreateInput;
 
-export function parseFormScript(body: unknown): ScriptCreateInput {
+export function parseFormScript(body: unknown) {
   const raw = body as Record<string, unknown>;
-  return scriptCreateSchema.parse({
-    nome: raw.nome,
-    descricao: raw.descricao ?? "",
+  return {
+    nome: String(raw.nome ?? ""),
+    descricao: String(raw.descricao ?? ""),
     tipo: raw.tipo,
-    conteudo: raw.conteudo ?? "",
-  });
+    conteudo: String(raw.conteudo ?? ""),
+  };
 }

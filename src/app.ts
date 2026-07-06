@@ -19,7 +19,7 @@ import { scriptRoute } from "./api/routes/script-route.js";
 import { tarefaRoute } from "./api/routes/tarefa-route.js";
 import { authPlugin } from "./plugins/auth.js";
 import { prismaPlugin } from "./plugins/prisma.js";
-import { schedulerPlugin } from "./plugins/scheduler.js";
+import { schedulerPlugin } from "./infrastructure/fastify/scheduler-plugin.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

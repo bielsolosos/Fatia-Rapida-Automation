@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { config } from "../config.js";
@@ -24,23 +25,19 @@ function generateSessionId(): string {
 }
 
 function signCookie(sid: string, secret: string): string {
-  // Simple HMAC-like signature using the secret
-  let hash = 0;
-  const combined = sid + secret;
-  for (let i = 0; i < combined.length; i++) {
-    const char = combined.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0;
-  }
-  return `${sid}.${Math.abs(hash).toString(36)}`;
+  const mac = createHmac("sha256", secret).update(sid).digest("hex");
+  return `${sid}.${mac}`;
 }
 
 function verifySignedCookie(value: string, secret: string): string | null {
   const dotIndex = value.lastIndexOf(".");
   if (dotIndex === -1) return null;
   const sid = value.substring(0, dotIndex);
-  const expected = signCookie(sid, secret);
-  return expected === value ? sid : null;
+  const mac = value.substring(dotIndex + 1);
+  const expected = createHmac("sha256", secret).update(sid).digest("hex");
+  const a = Buffer.from(mac);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b) ? sid : null;
 }
 
 export const authPlugin = fp(async (app: FastifyInstance) => {

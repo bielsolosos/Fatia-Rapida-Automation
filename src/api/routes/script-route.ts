@@ -48,18 +48,7 @@ export const scriptRoute: FastifyPluginAsync = async (app) => {
 
   app.post("/", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
-    let input: ReturnType<typeof parseFormScript>;
-    try {
-      input = parseFormScript(body);
-    } catch {
-      return reply.view("pages/script-form.ejs", {
-        errors: [{ message: "Dados inválidos" }],
-        values: body,
-        isAuthenticated: true,
-        currentPage: "scripts",
-      });
-    }
-
+    const input = parseFormScript(body);
     const parsed = scriptCreateSchema.safeParse(input);
     if (!parsed.success) {
       return reply.view("pages/script-form.ejs", {
@@ -81,20 +70,7 @@ export const scriptRoute: FastifyPluginAsync = async (app) => {
       return reply.status(400).send("Método inválido");
     }
 
-    let input: ReturnType<typeof parseFormScript>;
-    try {
-      input = parseFormScript(body);
-    } catch {
-      const script = await app.services.script.getById(request.params.id);
-      return reply.view("pages/script-form.ejs", {
-        script,
-        errors: [{ message: "Dados inválidos" }],
-        values: body,
-        isAuthenticated: true,
-        currentPage: "scripts",
-      });
-    }
-
+    const input = parseFormScript(body);
     const parsed = scriptCreateSchema.safeParse(input);
     if (!parsed.success) {
       const script = await app.services.script.getById(request.params.id);
