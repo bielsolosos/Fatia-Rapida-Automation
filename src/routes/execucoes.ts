@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { ExecucaoStatus } from "../core/enums/execucao-status.js";
 
 export const execucaoRoutes: FastifyPluginAsync = async (app) => {
   // All routes require auth
@@ -46,9 +47,9 @@ export const execucaoRoutes: FastifyPluginAsync = async (app) => {
             timeZone: "America/Sao_Paulo",
           });
           const badgeClass =
-            exec.status === "SUCESSO"
+            exec.status === ExecucaoStatus.SUCESSO
               ? "badge-success"
-              : exec.status === "FALHA"
+              : exec.status === ExecucaoStatus.FALHA
                 ? "badge-danger"
                 : "badge-warning";
           const tarefaNome = exec.tarefa

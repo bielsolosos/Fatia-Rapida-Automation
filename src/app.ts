@@ -4,11 +4,12 @@ import fastifyHelmet from "@fastify/helmet";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import ejs from "ejs";
-import Fastify, { type FastifyError } from "fastify";
+import Fastify from "fastify";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "./config.js";
+import { globalErrorHandler } from "./core/exceptions/global-error-handler.js";
 import { authPlugin } from "./plugins/auth.js";
 import { prismaPlugin } from "./plugins/prisma.js";
 import { schedulerPlugin } from "./plugins/scheduler.js";
@@ -102,26 +103,7 @@ export async function buildApp() {
   }
 
   // ── Error handler ──
-  app.setErrorHandler((error: FastifyError, request, reply) => {
-    request.log.error(error);
-
-    const statusCode = error.statusCode || 500;
-    const isHtmx = request.headers["hx-request"] === "true";
-
-    if (isHtmx) {
-      return reply
-        .status(statusCode)
-        .send(
-          `<div class="toast error" role="alert">${error.message || "Erro interno"}</div>`,
-        );
-    }
-
-    return reply.status(statusCode).view("pages/error.ejs", {
-      title: `Erro ${statusCode}`,
-      statusCode,
-      message: error.message || "Algo deu errado.",
-    });
-  });
+  app.setErrorHandler(globalErrorHandler);
 
   // ── 404 handler ──
   app.setNotFoundHandler((request, reply) => {

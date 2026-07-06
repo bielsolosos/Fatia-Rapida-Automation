@@ -4,13 +4,16 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "../config.js";
+import { ExecucaoStatus } from "../core/enums/execucao-status.js";
+import { ScriptTipo } from "../core/enums/script-tipo.js";
+import { BusinessException } from "../core/exceptions/business-exception.js";
 import type { ScriptCreateInput } from "../validators/script.schema.js";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function extensaoPorTipo(tipo: string): string {
-  if (tipo === "NODEJS") return "js";
-  if (tipo === "PYTHON") return "py";
+  if (tipo === ScriptTipo.NODEJS) return "js";
+  if (tipo === ScriptTipo.PYTHON) return "py";
   return "sh";
 }
 
@@ -19,14 +22,14 @@ function executorPorTipo(
   filePath: string,
 ): { cmd: string; args: string[] } {
   if (process.platform === "win32") {
-    if (tipo === "NODEJS") return { cmd: "node", args: [filePath] };
-    if (tipo === "PYTHON") return { cmd: "python", args: [filePath] };
+    if (tipo === ScriptTipo.NODEJS) return { cmd: "node", args: [filePath] };
+    if (tipo === ScriptTipo.PYTHON) return { cmd: "python", args: [filePath] };
     // Windows: usa bash (Git Bash) para scripts .sh — cmd.exe abriria janela externa
     // sem capturar output. bash -c merges stderr+stdout via 2>&1.
     return { cmd: "bash", args: ["-c", `"${filePath}" 2>&1`] };
   }
-  if (tipo === "NODEJS") return { cmd: "node", args: [filePath] };
-  if (tipo === "PYTHON") return { cmd: "python3", args: [filePath] };
+  if (tipo === ScriptTipo.NODEJS) return { cmd: "node", args: [filePath] };
+  if (tipo === ScriptTipo.PYTHON) return { cmd: "python3", args: [filePath] };
   // Linux: bash -c com 2>&1 — merge stderr+stdout na ordem real do terminal
   return { cmd: "bash", args: ["-c", `"${filePath}" 2>&1`] };
 }
@@ -152,11 +155,11 @@ export async function executeScriptManually(
   scriptId: string,
 ): Promise<ExecucaoResult> {
   const script = await prisma.script.findUnique({ where: { id: scriptId } });
-  if (!script) throw new Error("Script não encontrado");
+  if (!script) throw new BusinessException("Script não encontrado");
 
   const start = Date.now();
   const execucao = await prisma.execucao.create({
-    data: { scriptId, status: "EM_ANDAMENTO" },
+    data: { scriptId, status: ExecucaoStatus.EM_ANDAMENTO },
   });
 
   const filePath = path.join(config.scriptsDir, script.arquivo);
@@ -196,7 +199,8 @@ export async function executeScriptManually(
     });
   });
 
-  const status = result.exitCode === 0 ? "SUCESSO" : "FALHA";
+  const status =
+    result.exitCode === 0 ? ExecucaoStatus.SUCESSO : ExecucaoStatus.FALHA;
   await prisma.execucao.update({
     where: { id: execucao.id },
     data: {

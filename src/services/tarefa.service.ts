@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
+import { ExecucaoStatus } from "../core/enums/execucao-status.js";
 import type {
   TarefaCreateInput,
   TarefaUpdateInput,
@@ -113,8 +114,8 @@ export async function getDashboardStats(prisma: PrismaClient) {
         executadoEm: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
       },
     }),
-    prisma.execucao.count({ where: { status: "SUCESSO" } }),
-    prisma.execucao.count({ where: { status: "FALHA" } }),
+    prisma.execucao.count({ where: { status: ExecucaoStatus.SUCESSO } }),
+    prisma.execucao.count({ where: { status: ExecucaoStatus.FALHA } }),
     prisma.execucao.findMany({
       take: 5,
       orderBy: { executadoEm: "desc" },

@@ -3,6 +3,8 @@ import { exec, spawn } from "child_process";
 import path from "node:path";
 import { promisify } from "util";
 import { config } from "../config.js";
+import { ExecucaoStatus } from "../core/enums/execucao-status.js";
+import { ScriptTipo } from "../core/enums/script-tipo.js";
 import { sendDiscordWebhook } from "./webhook.service.js";
 
 const execAsync = promisify(exec);
@@ -23,7 +25,7 @@ export async function executeTask(
   const start = Date.now();
 
   const execucao = await prisma.execucao.create({
-    data: { tarefaId: tarefa.id, status: "EM_ANDAMENTO" },
+    data: { tarefaId: tarefa.id, status: ExecucaoStatus.EM_ANDAMENTO },
   });
 
   let stdout = "";
@@ -46,10 +48,10 @@ export async function executeTask(
         let cmd: string;
         let args: string[];
         if (process.platform === "win32") {
-          if (script.tipo === "NODEJS") {
+          if (script.tipo === ScriptTipo.NODEJS) {
             cmd = "node";
             args = [filePath];
-          } else if (script.tipo === "PYTHON") {
+          } else if (script.tipo === ScriptTipo.PYTHON) {
             cmd = "python";
             args = [filePath];
           } else {
@@ -57,10 +59,10 @@ export async function executeTask(
             args = ["-c", `"${filePath}" 2>&1`];
           }
         } else {
-          if (script.tipo === "NODEJS") {
+          if (script.tipo === ScriptTipo.NODEJS) {
             cmd = "node";
             args = [filePath];
-          } else if (script.tipo === "PYTHON") {
+          } else if (script.tipo === ScriptTipo.PYTHON) {
             cmd = "python3";
             args = [filePath];
           } else {
@@ -135,7 +137,7 @@ export async function executeTask(
 
     await prisma.execucao.update({
       where: { id: execucao.id },
-      data: { status: "SUCESSO", saida, duracao },
+      data: { status: ExecucaoStatus.SUCESSO, saida, duracao },
     });
   } catch (err) {
     const duracao = Date.now() - start;
@@ -148,7 +150,7 @@ export async function executeTask(
     await prisma.execucao.update({
       where: { id: execucao.id },
       data: {
-        status: "FALHA",
+        status: ExecucaoStatus.FALHA,
         saida: JSON.stringify({
           type: saidaTipo,
           error: errorMessage,

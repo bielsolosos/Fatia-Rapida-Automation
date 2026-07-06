@@ -1,12 +1,17 @@
 import { z } from "zod";
+import { ScriptTipo } from "../core/enums/script-tipo.js";
 
-export const SCRIPT_TIPOS = ["SHELL", "NODEJS", "PYTHON"] as const;
-export type ScriptTipo = (typeof SCRIPT_TIPOS)[number];
+export type { ScriptTipo };
+
+const scriptTipoValues = Object.values(ScriptTipo) as [
+  ScriptTipo,
+  ...ScriptTipo[],
+];
 
 export const scriptCreateSchema = z.object({
   nome: z.string().min(1, "Nome obrigatório").max(100),
   descricao: z.string().max(500).optional().default(""),
-  tipo: z.enum(SCRIPT_TIPOS, { required_error: "Tipo obrigatório" }),
+  tipo: z.enum(scriptTipoValues, { required_error: "Tipo obrigatório" }),
   conteudo: z.string().default(""),
 });
 
