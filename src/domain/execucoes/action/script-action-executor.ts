@@ -2,11 +2,11 @@ import path from "node:path";
 import { config } from "../../../config.js";
 import { ActionTipo } from "../../../core/enums/action-tipo.js";
 import { ScriptTipo } from "../../../core/enums/script-tipo.js";
-import { processRunner } from "../runner/process-runner.js";
+import type { ProcessRunner } from "../runner/process-runner.js";
 import type { ActionContext, ActionResult, ActionExecutor } from "./action-executor.js";
 
 export class ScriptActionExecutor implements ActionExecutor {
-  constructor(private readonly runner: typeof processRunner) {}
+  constructor(private readonly runner: ProcessRunner) {}
 
   async execute(ctx: ActionContext): Promise<ActionResult> {
     const { script } = ctx;
@@ -42,5 +42,3 @@ export class ScriptActionExecutor implements ActionExecutor {
     return { cmd: "bash", args: ["-c", `"${filePath}" 2>&1`] };
   }
 }
-
-export const scriptActionExecutor = new ScriptActionExecutor(processRunner);

@@ -1,8 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
-import { loginSchema } from "../validators/auth.schema.js";
+import { loginSchema } from "../../validators/auth.schema.js";
 
-export const authRoutes: FastifyPluginAsync = async (app) => {
-  // GET /login — render login page
+export const authRoute: FastifyPluginAsync = async (app) => {
   app.get("/login", async (request, reply) => {
     if (request.isAuthenticated) {
       return reply.redirect("/");
@@ -10,7 +9,6 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     return reply.view("pages/login.ejs", {});
   });
 
-  // POST /login — authenticate
   app.post("/login", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
 
@@ -35,7 +33,6 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     return reply.redirect("/");
   });
 
-  // POST /logout — destroy session
   app.post("/logout", async (request, reply) => {
     await app.logout(request, reply);
     return reply.redirect("/login");

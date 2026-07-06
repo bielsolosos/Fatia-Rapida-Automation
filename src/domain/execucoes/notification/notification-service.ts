@@ -1,6 +1,4 @@
-import { consoleLogger } from "../../../core/logger/console-logger.js";
 import type { Logger } from "../../../core/logger/logger.js";
-import { discordChannel } from "./discord-channel.js";
 import type { NotificationChannel, NotificationPayload } from "./notification-channel.js";
 
 export class NotificationService {
@@ -22,8 +20,3 @@ export class NotificationService {
     }
   }
 }
-
-export const notificationService = new NotificationService(
-  [discordChannel],
-  consoleLogger,
-);

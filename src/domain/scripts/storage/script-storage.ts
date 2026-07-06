@@ -28,5 +28,3 @@ export class ScriptStorage {
     await fs.mkdir(config.scriptsDir, { recursive: true });
   }
 }
-
-export const scriptStorage = new ScriptStorage();

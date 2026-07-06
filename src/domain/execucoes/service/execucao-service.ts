@@ -2,23 +2,12 @@ import type { PrismaClient, Script, Tarefa } from "@prisma/client";
 import { ActionTipo } from "../../../core/enums/action-tipo.js";
 import { ExecucaoStatus } from "../../../core/enums/execucao-status.js";
 import { BusinessException } from "../../../core/exceptions/business-exception.js";
-import { consoleLogger } from "../../../core/logger/console-logger.js";
 import type { Logger } from "../../../core/logger/logger.js";
-import { prisma } from "../../../infrastructure/persistence/prisma.js";
-import {
-  actionExecutorFactory,
-  type ActionExecutorFactory,
-} from "../action/action-executor-factory.js";
+import type { ActionExecutorFactory } from "../action/action-executor-factory.js";
 import type { ActionContext } from "../action/action-executor.js";
-import {
-  scriptActionExecutor,
-  type ScriptActionExecutor,
-} from "../action/script-action-executor.js";
+import type { ScriptActionExecutor } from "../action/script-action-executor.js";
 import type { ExecucaoSaida } from "../model/execucao-saida.js";
-import {
-  notificationService,
-  type NotificationService,
-} from "../notification/notification-service.js";
+import type { NotificationService } from "../notification/notification-service.js";
 
 export interface ExecucaoResult {
   stdout: string;
@@ -35,6 +24,35 @@ export class ExecucaoService {
     private readonly scriptExecutor: ScriptActionExecutor,
     private readonly notification: NotificationService,
   ) {}
+
+  async list(opts: { page: number; limit: number; status?: string }) {
+    const where = opts.status ? { status: opts.status } : {};
+    const [execucoes, total] = await Promise.all([
+      this.prisma.execucao.findMany({
+        where,
+        include: {
+          tarefa: { select: { nome: true } },
+          script: { select: { nome: true } },
+        },
+        orderBy: { executadoEm: "desc" },
+        skip: (opts.page - 1) * opts.limit,
+        take: opts.limit,
+      }),
+      this.prisma.execucao.count({ where }),
+    ]);
+    return { execucoes, total };
+  }
+
+  async getById(id: string) {
+    return this.prisma.execucao.findUnique({
+      where: { id },
+      include: { tarefa: { select: { nome: true } } },
+    });
+  }
+
+  async delete(id: string) {
+    return this.prisma.execucao.delete({ where: { id } });
+  }
 
   async runTask(tarefa: Tarefa): Promise<void> {
     const start = Date.now();
@@ -178,11 +196,3 @@ export class ExecucaoService {
     return { type: "NOOP" };
   }
 }
-
-export const execucaoService = new ExecucaoService(
-  prisma,
-  consoleLogger,
-  actionExecutorFactory,
-  scriptActionExecutor,
-  notificationService,
-);

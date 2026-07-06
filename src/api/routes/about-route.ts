@@ -1,7 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 
-export const aboutRoutes: FastifyPluginAsync = async (app) => {
-  // Rota pública — sem requireAuth
+export const aboutRoute: FastifyPluginAsync = async (app) => {
   app.get("/about", async (request, reply) => {
     return reply.view("pages/about.ejs", {
       title: "Sobre o Projeto",

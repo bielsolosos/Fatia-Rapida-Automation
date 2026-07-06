@@ -30,5 +30,3 @@ export class ShellActionExecutor implements ActionExecutor {
     }
   }
 }
-
-export const shellActionExecutor = new ShellActionExecutor();

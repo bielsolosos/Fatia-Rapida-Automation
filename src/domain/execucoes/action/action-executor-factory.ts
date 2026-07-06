@@ -1,8 +1,5 @@
 import type { Tarefa } from "@prisma/client";
 import { ActionTipo } from "../../../core/enums/action-tipo.js";
-import { noopActionExecutor } from "./noop-action-executor.js";
-import { scriptActionExecutor } from "./script-action-executor.js";
-import { shellActionExecutor } from "./shell-action-executor.js";
 import type { ActionExecutor } from "./action-executor.js";
 
 export class ActionExecutorFactory {
@@ -16,9 +13,3 @@ export class ActionExecutorFactory {
     return this.executors[ActionTipo.NOOP];
   }
 }
-
-export const actionExecutorFactory = new ActionExecutorFactory({
-  [ActionTipo.SCRIPT]: scriptActionExecutor,
-  [ActionTipo.SHELL]: shellActionExecutor,
-  [ActionTipo.NOOP]: noopActionExecutor,
-});

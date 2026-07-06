@@ -1,25 +1,14 @@
 import type { FastifyPluginAsync } from "fastify";
-import { listScripts } from "../services/script.service.js";
-import {
-  createTarefa,
-  deleteTarefa,
-  getTarefaById,
-  listTarefas,
-  toggleTarefa,
-  updateTarefa,
-} from "../services/tarefa.service.js";
 import {
   parseFormTarefa,
   tarefaCreateSchema,
-} from "../validators/tarefa.schema.js";
+} from "../../validators/tarefa.schema.js";
 
-export const tarefaRoutes: FastifyPluginAsync = async (app) => {
-  // All tarefa routes require auth
+export const tarefaRoute: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireAuth);
 
-  // GET /tarefas — list all
-  app.get("/", async (request, reply) => {
-    const tarefas = await listTarefas(app.prisma);
+  app.get("/", async (_request, reply) => {
+    const tarefas = await app.services.tarefa.list();
     return reply.view("pages/tarefas.ejs", {
       tarefas,
       isAuthenticated: true,
@@ -27,9 +16,8 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  // GET /tarefas/nova — form to create
   app.get("/nova", async (_request, reply) => {
-    const scripts = await listScripts(app.prisma);
+    const scripts = await app.services.script.list();
     return reply.view("pages/tarefa-form.ejs", {
       scripts,
       isAuthenticated: true,
@@ -37,49 +25,52 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  // GET /tarefas/:id/clonar — form pre-filled to clone
-  app.get<{ Params: { id: string } }>("/clonar/:id", async (request, reply) => {
-    const [tarefa, scripts] = await Promise.all([
-      getTarefaById(app.prisma, request.params.id),
-      listScripts(app.prisma),
-    ]);
-    if (!tarefa) {
-      return reply.status(404).view("pages/error.ejs", {
-        statusCode: 404,
-        message: "Tarefa n\u00e3o encontrada",
+  app.get<{ Params: { id: string } }>(
+    "/clonar/:id",
+    async (request, reply) => {
+      const [tarefa, scripts] = await Promise.all([
+        app.services.tarefa.getById(request.params.id),
+        app.services.script.list(),
+      ]);
+      if (!tarefa) {
+        return reply.status(404).view("pages/error.ejs", {
+          statusCode: 404,
+          message: "Tarefa não encontrada",
+          isAuthenticated: true,
+        });
+      }
+      return reply.view("pages/tarefa-form.ejs", {
+        prefill: tarefa,
+        scripts,
         isAuthenticated: true,
+        currentPage: "tarefas",
       });
-    }
-    return reply.view("pages/tarefa-form.ejs", {
-      prefill: tarefa,
-      scripts,
-      isAuthenticated: true,
-      currentPage: "tarefas",
-    });
-  });
+    },
+  );
 
-  // GET /tarefas/:id/editar — form to edit
-  app.get<{ Params: { id: string } }>("/:id/editar", async (request, reply) => {
-    const [tarefa, scripts] = await Promise.all([
-      getTarefaById(app.prisma, request.params.id),
-      listScripts(app.prisma),
-    ]);
-    if (!tarefa) {
-      return reply.status(404).view("pages/error.ejs", {
-        statusCode: 404,
-        message: "Tarefa n\u00e3o encontrada",
+  app.get<{ Params: { id: string } }>(
+    "/:id/editar",
+    async (request, reply) => {
+      const [tarefa, scripts] = await Promise.all([
+        app.services.tarefa.getById(request.params.id),
+        app.services.script.list(),
+      ]);
+      if (!tarefa) {
+        return reply.status(404).view("pages/error.ejs", {
+          statusCode: 404,
+          message: "Tarefa não encontrada",
+          isAuthenticated: true,
+        });
+      }
+      return reply.view("pages/tarefa-form.ejs", {
+        tarefa,
+        scripts,
         isAuthenticated: true,
+        currentPage: "tarefas",
       });
-    }
-    return reply.view("pages/tarefa-form.ejs", {
-      tarefa,
-      scripts,
-      isAuthenticated: true,
-      currentPage: "tarefas",
-    });
-  });
+    },
+  );
 
-  // POST /tarefas — create new
   app.post("/", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
     const input = parseFormTarefa(body);
@@ -94,9 +85,8 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    const tarefa = await createTarefa(app.prisma, parsed.data);
+    const tarefa = await app.services.tarefa.create(parsed.data);
 
-    // Schedule the new task
     if (app.scheduler) {
       await app.scheduler.scheduleTask(tarefa.id);
     }
@@ -104,11 +94,9 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     return reply.redirect("/tarefas");
   });
 
-  // POST /tarefas/:id (with _method=PUT) — update
   app.post<{ Params: { id: string } }>("/:id", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
 
-    // Method override check
     if (body._method !== "PUT") {
       return reply.status(400).send("Método inválido");
     }
@@ -117,7 +105,7 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     const parsed = tarefaCreateSchema.safeParse(input);
 
     if (!parsed.success) {
-      const tarefa = await getTarefaById(app.prisma, request.params.id);
+      const tarefa = await app.services.tarefa.getById(request.params.id);
       return reply.view("pages/tarefa-form.ejs", {
         tarefa,
         errors: parsed.error.issues,
@@ -127,9 +115,8 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    await updateTarefa(app.prisma, request.params.id, parsed.data);
+    await app.services.tarefa.update(request.params.id, parsed.data);
 
-    // Reschedule the task
     if (app.scheduler) {
       await app.scheduler.rescheduleTask(request.params.id);
     }
@@ -137,18 +124,16 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     return reply.redirect("/tarefas");
   });
 
-  // PATCH /tarefas/:id/toggle — toggle active (HTMX)
   app.patch<{ Params: { id: string } }>(
     "/:id/toggle",
     async (request, reply) => {
-      const tarefa = await toggleTarefa(app.prisma, request.params.id);
+      const tarefa = await app.services.tarefa.toggle(request.params.id);
       if (!tarefa) {
         return reply
           .status(404)
           .send("<div class=\"toast error\">Tarefa não encontrada</div>");
       }
 
-      // Reschedule or unschedule
       if (app.scheduler) {
         if (tarefa.ativo) {
           await app.scheduler.scheduleTask(tarefa.id);
@@ -161,16 +146,13 @@ export const tarefaRoutes: FastifyPluginAsync = async (app) => {
     },
   );
 
-  // DELETE /tarefas/:id — delete (HTMX)
   app.delete<{ Params: { id: string } }>("/:id", async (request, reply) => {
-    // Unschedule first
     if (app.scheduler) {
       app.scheduler.unscheduleTask(request.params.id);
     }
 
-    await deleteTarefa(app.prisma, request.params.id);
+    await app.services.tarefa.delete(request.params.id);
 
-    // Return empty string so HTMX removes the element
     return reply.send("");
   });
 };

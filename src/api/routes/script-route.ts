@@ -1,24 +1,15 @@
 import type { FastifyPluginAsync } from "fastify";
-import { config } from "../config.js";
-import { execucaoService } from "../domain/execucoes/service/execucao-service.js";
-import {
-  createScript,
-  deleteScript,
-  getScriptById,
-  listScripts,
-  updateScript,
-} from "../services/script.service.js";
+import { config } from "../../config.js";
 import {
   parseFormScript,
   scriptCreateSchema,
-} from "../validators/script.schema.js";
+} from "../../validators/script.schema.js";
 
-export const scriptRoutes: FastifyPluginAsync = async (app) => {
+export const scriptRoute: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireAuth);
 
-  // GET /scripts — lista
   app.get("/", async (_request, reply) => {
-    const scripts = await listScripts(app.prisma);
+    const scripts = await app.services.script.list();
     return reply.view("pages/scripts.ejs", {
       scripts,
       scriptsDir: config.scriptsDir,
@@ -27,7 +18,6 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  // GET /scripts/novo — formulário de criação
   app.get("/novo", async (_request, reply) => {
     return reply.view("pages/script-form.ejs", {
       scriptsDir: config.scriptsDir,
@@ -36,25 +26,26 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  // GET /scripts/:id/editar — formulário de edição
-  app.get<{ Params: { id: string } }>("/:id/editar", async (request, reply) => {
-    const script = await getScriptById(app.prisma, request.params.id);
-    if (!script) {
-      return reply.status(404).view("pages/error.ejs", {
-        statusCode: 404,
-        message: "Script não encontrado",
+  app.get<{ Params: { id: string } }>(
+    "/:id/editar",
+    async (request, reply) => {
+      const script = await app.services.script.getById(request.params.id);
+      if (!script) {
+        return reply.status(404).view("pages/error.ejs", {
+          statusCode: 404,
+          message: "Script não encontrado",
+          isAuthenticated: true,
+        });
+      }
+      return reply.view("pages/script-form.ejs", {
+        script,
+        scriptsDir: config.scriptsDir,
         isAuthenticated: true,
+        currentPage: "scripts",
       });
-    }
-    return reply.view("pages/script-form.ejs", {
-      script,
-      scriptsDir: config.scriptsDir,
-      isAuthenticated: true,
-      currentPage: "scripts",
-    });
-  });
+    },
+  );
 
-  // POST /scripts — criar
   app.post("/", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
     let input: ReturnType<typeof parseFormScript>;
@@ -79,11 +70,10 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    await createScript(app.prisma, parsed.data);
+    await app.services.script.create(parsed.data);
     return reply.redirect("/scripts");
   });
 
-  // POST /scripts/:id (com _method=PUT) — atualizar
   app.post<{ Params: { id: string } }>("/:id", async (request, reply) => {
     const body = request.body as Record<string, unknown>;
 
@@ -95,7 +85,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
     try {
       input = parseFormScript(body);
     } catch {
-      const script = await getScriptById(app.prisma, request.params.id);
+      const script = await app.services.script.getById(request.params.id);
       return reply.view("pages/script-form.ejs", {
         script,
         errors: [{ message: "Dados inválidos" }],
@@ -107,7 +97,7 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
 
     const parsed = scriptCreateSchema.safeParse(input);
     if (!parsed.success) {
-      const script = await getScriptById(app.prisma, request.params.id);
+      const script = await app.services.script.getById(request.params.id);
       return reply.view("pages/script-form.ejs", {
         script,
         errors: parsed.error.issues,
@@ -117,23 +107,21 @@ export const scriptRoutes: FastifyPluginAsync = async (app) => {
       });
     }
 
-    await updateScript(app.prisma, request.params.id, parsed.data);
+    await app.services.script.update(request.params.id, parsed.data);
     return reply.redirect("/scripts");
   });
 
-  // DELETE /scripts/:id — deletar (HTMX)
   app.delete<{ Params: { id: string } }>("/:id", async (request, reply) => {
-    await deleteScript(app.prisma, request.params.id);
+    await app.services.script.delete(request.params.id);
     return reply.send("");
   });
 
-  // POST /scripts/:id/executar — execução manual (HTMX)
   app.post<{ Params: { id: string } }>(
     "/:id/executar",
     async (request, reply) => {
       const start = Date.now();
       try {
-        const result = await execucaoService.runScriptManually(
+        const result = await app.services.execucao.runScriptManually(
           request.params.id,
         );
         return reply.view("partials/execution-output.ejs", {

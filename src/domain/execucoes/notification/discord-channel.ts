@@ -46,5 +46,3 @@ export class DiscordChannel implements NotificationChannel {
     );
   }
 }
-
-export const discordChannel = new DiscordChannel();

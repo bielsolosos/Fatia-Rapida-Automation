@@ -2,7 +2,6 @@ import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import cron, { type ScheduledTask } from "node-cron";
 import { generateCronExpressions } from "../domain/tarefas/scheduling/cron-expression-builder.js";
-import { execucaoService } from "../domain/execucoes/service/execucao-service.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -49,7 +48,7 @@ export const schedulerPlugin = fp(async (app: FastifyInstance) => {
                 `⏰ Executando tarefa "${tarefa.nome}" (${tarefa.id})`,
               );
               try {
-                await execucaoService.runTask(tarefa);
+                await app.services.execucao.runTask(tarefa);
               } catch (err) {
                 app.log.error(err, `Erro ao executar tarefa ${tarefa.id}`);
               }
@@ -88,7 +87,7 @@ export const schedulerPlugin = fp(async (app: FastifyInstance) => {
           async () => {
             app.log.info(`⏰ Executando tarefa "${tarefa.nome}" (${tarefaId})`);
             try {
-              await execucaoService.runTask(tarefa);
+              await app.services.execucao.runTask(tarefa);
             } catch (err) {
               app.log.error(err, `Erro ao executar tarefa ${tarefaId}`);
             }

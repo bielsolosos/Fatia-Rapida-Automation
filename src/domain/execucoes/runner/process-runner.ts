@@ -56,5 +56,3 @@ export class ProcessRunner {
     });
   }
 }
-
-export const processRunner = new ProcessRunner({ defaultTimeoutMs: 60_000 });

@@ -6,5 +6,3 @@ export class NoopActionExecutor implements ActionExecutor {
     return { stdout: "", stderr: "", exitCode: 0, tipo: ActionTipo.NOOP };
   }
 }
-
-export const noopActionExecutor = new NoopActionExecutor();
