@@ -1,6 +1,6 @@
 {
   "name": "fatia-rapida",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Automação de tarefas com agendamento — Fastify + HTMX + EJS",
   "author": "bielsolosos",
   "license": "MIT",
@@ -19,7 +19,10 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "hash-password": "tsx scripts/hash-password.ts",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "eslint src/ --fix"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.1",
@@ -39,14 +42,17 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bcrypt": "^5.0.2",
     "@types/ejs": "^3.1.5",
     "@types/node": "^22.10.2",
     "@types/node-cron": "^3.0.11",
     "copyfiles": "^2.4.1",
+    "eslint": "^10.4.1",
     "pino-pretty": "^13.0.0",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.61.0"
   }
 }

@@ -1,27 +1,27 @@
-<tr id="exec-<%= exec.id %>">
+<tr id="exec-<%= view.id %>">
   <td class="text-sm">
-    <%= new Date(exec.executadoEm).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) %>
+    <%= view.dataFormatada %>
   </td>
   <td>
-    <span class="badge badge-sm <%= exec.status === 'SUCESSO' ? 'badge-success' : exec.status === 'FALHA' ? 'badge-error' : 'badge-warning' %>">
-      <%= exec.status %>
+    <span class="badge badge-sm <%= view.statusBadgeClass %>">
+      <%= view.status %>
     </span>
   </td>
   <td class="text-sm">
-    <% if (exec.tarefa) { %>
-      <%= exec.tarefa.nome %>
-    <% } else if (exec.script) { %>
-      <span class="opacity-60">Script:</span> <%= exec.script.nome %>
+    <% if (view.origem.kind === 'tarefa') { %>
+      <%= view.origem.nome %>
+    <% } else if (view.origem.kind === 'script') { %>
+      <span class="opacity-60">Script:</span> <%= view.origem.nome %>
     <% } else { %>
       <span class="opacity-40">(avulso)</span>
     <% } %>
   </td>
-  <td class="text-sm"><%= exec.duracao ? exec.duracao + 'ms' : '—' %></td>
+  <td class="text-sm"><%= view.duracaoLabel %></td>
   <td>
-    <% if (exec.saida) { %>
+    <% if (view.temSaida) { %>
       <button
         class="btn btn-xs btn-ghost"
-        hx-get="/execucoes/<%= exec.id %>/detalhes"
+        hx-get="/execucoes/<%= view.id %>/detalhes"
         hx-target="#exec-detail-modal"
         hx-swap="innerHTML"
       >

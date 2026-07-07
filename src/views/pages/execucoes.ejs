@@ -22,7 +22,7 @@
     <input type="hidden" name="limit" value="<%= typeof limit !== 'undefined' ? limit : 20 %>">
   </div>
 
-  <% if (typeof execucoes !== 'undefined' && execucoes.length > 0) { %>
+  <% if (typeof views !== 'undefined' && views.length > 0) { %>
     <div class="card bg-base-200 shadow">
       <div class="card-body p-0">
         <div class="overflow-x-auto">
@@ -37,9 +37,7 @@
               </tr>
             </thead>
             <tbody id="execucoes-table-body">
-              <% execucoes.forEach(function(exec) { %>
-                <%- include('../partials/execution-row', { exec }) %>
-              <% }); %>
+              <%- include('../partials/execution-rows', { views }) %>
             </tbody>
           </table>
         </div>
