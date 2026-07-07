@@ -110,7 +110,7 @@ async runTask(tarefa) {
 export const prisma = new PrismaClient({ log: config.logLevel === "debug" ? [{ emit: "event", level: "query" }] : [] });
 ```
 
-**Por quê.** Prisma já é tipado e faz o papel de repository. Não vale o ceremony de port+impl por agregado num app single-user SQLite. O composition root injeta o singleton nos services. → [ADR-0003](adr/0003-no-repository-pattern.md).
+**Por quê.** Prisma já é tipado e faz o papel de repository. Não vale o ceremony de port+impl por agregado num app single-user SQLite. O composition root injeta o singleton nos services.
 
 ---
 

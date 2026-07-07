@@ -72,7 +72,7 @@ PM2 garante resiliência: restart automático em crash, restart por memory leak 
 
 Se o `scripts/user/` for apagado (reboot, volume faltando), o `ScriptStorage.ensure` re-materializa os arquivos a partir de `Script.conteudo` na próxima execução. O app **não quebra** — só o SQLite precisa de persistência real.
 
-→ [Execution flow: ensure](EXECUTION-FLOW.md#o-ensure--cache-self-healing) · [ADR-0007](adr/0007-ensure-cache-over-temp-file.md)
+→ [Execution flow: ensure](EXECUTION-FLOW.md#o-ensure--cache-self-healing)
 
 ## Docker (futuro)
 

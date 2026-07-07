@@ -68,5 +68,3 @@ Dogma DDD completo (repository port+impl, Specification, agregados ricos) seria 
 - **Services com estado (deps no construtor)** — logger/factory/notifier injetados, não passados em toda chamada.
 - **Composition root visível** — o grafo de deps num arquivo, sem container mágico.
 - **Padrões de projeto no núcleo de execução** — Strategy/Factory onde o if/else era custoso.
-
-→ Decisões detalhadas nos [ADRs](adr/), especialmente [0001](adr/0001-ddd-layering.md), [0002](adr/0002-composition-root-over-spring-di.md), [0003](adr/0003-no-repository-pattern.md).

@@ -150,7 +150,6 @@ src/
 | [Security](docs/SECURITY.md) | Auth HMAC-SHA256, sessions, CSP |
 | [Deployment](docs/DEPLOYMENT.md) | Pi/PM2, env, ensure cache, statelessness |
 | [Contributing](docs/CONTRIBUTING.md) | Contrato de 4 passos p/ novo serviço + convenções |
-| [Decisions (ADRs)](docs/adr/) | Architecture Decision Records |
 
 ---
 

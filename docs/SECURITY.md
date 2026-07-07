@@ -30,7 +30,7 @@ function verifySignedCookie(value: string, secret: string): string | null {
 - **`secure: !isDev`** — HTTPS-only em produção.
 - **`timingSafeEqual`** na verificação — evita timing attack na comparação do MAC.
 
-> Histórico: antes usava DJB2 (hash 32-bit não-cripto) — vulnerável a forjação. Corrigido pra HMAC-SHA256 real (ver [ADR](adr/)).
+> Histórico: antes usava DJB2 (hash 32-bit não-cripto) — vulnerável a forjação. Corrigido pra HMAC-SHA256 real.
 
 ## Sessões no SQLite
 

@@ -106,7 +106,7 @@ erDiagram
 - **`arquivo`** (banco) — nome do arquivo em `scripts/user/`. **Legado pós-`ensure`**: não há mais arquivo persistente obrigatório; o disco é cache reconstrutível.
 - **`scripts/user/<arquivo>`** (disco) — cache. Se faltar, `ScriptStorage.ensure` re-cria a partir de `conteudo` antes de todo spawn.
 
-→ Detalhe do fluxo em [Execution flow](EXECUTION-FLOW.md#o-ensure--cache-self-healing) · decisão em [ADR-0007](adr/0007-ensure-cache-over-temp-file.md).
+→ Detalhe do fluxo em [Execution flow](EXECUTION-FLOW.md#o-ensure--cache-self-healing).
 
 ## `saida` — o union tipado
 

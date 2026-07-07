@@ -97,7 +97,7 @@ async ensure(arquivo: string, conteudo: string): Promise<void> {
 }
 ```
 
-Chamado antes de todo spawn. O banco é a source of truth; o disco é reconstrutível. → [ADR-0007](adr/0007-ensure-cache-over-temp-file.md).
+Chamado antes de todo spawn. O banco é a source of truth; o disco é reconstrutível.
 
 ## Estado da execução
 
